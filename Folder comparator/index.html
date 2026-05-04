@@ -41,7 +41,7 @@
       flex-direction: column;
       background: #f8f8f8;
       color: var(--text);
-      font: 14px/1.4 "IBM Plex Sans", "Trebuchet MS", Verdana, sans-serif;
+      font: 13px/1.35 "IBM Plex Sans", "Trebuchet MS", Verdana, sans-serif;
     }
 
     .app-menu {
@@ -101,13 +101,25 @@
 
     .back-link:hover { background: var(--brand-cta-hover); }
 
+    .menu-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .menu-help {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
     .menu-help-btn {
       border: 1px solid #c6dbee;
       background: #f1f8ff;
       color: #17375a;
       border-radius: 999px;
-      padding: 6px 12px;
-      font-size: 12px;
+      padding: 6px 10px;
+      font-size: 11px;
       font-weight: 700;
       cursor: help;
       letter-spacing: .2px;
@@ -121,8 +133,8 @@
       position: absolute;
       top: calc(100% + 8px);
       right: 0;
-      width: min(460px, 86vw);
-      padding: 14px;
+      width: min(420px, 82vw);
+      padding: 12px;
       background: #fff;
       border: 1px solid #c9d6ee;
       border-radius: 10px;
@@ -130,7 +142,7 @@
       color: #1f2937;
       z-index: 60;
       font-size: 12px;
-      line-height: 1.5;
+      line-height: 1.45;
     }
 
     .menu-help:hover .menu-help-popover,
@@ -145,13 +157,6 @@
       border-bottom: 1px solid var(--border);
       flex-wrap: wrap;
       box-shadow: 0 2px 8px rgba(8, 35, 77, 0.06);
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 16px;
-      color: var(--brand-primary);
-      font-weight: 700;
     }
 
     button, input, select { font: inherit; }
@@ -276,78 +281,6 @@
       font-weight: 600;
     }
 
-    .onboarding {
-      width: 100%;
-      border: 1px solid #cde0f8;
-      border-radius: 10px;
-      background: #f4f9ff;
-      padding: 10px 12px;
-      color: #21456f;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      font-size: 13px;
-    }
-
-    .onboarding strong { color: #113357; }
-
-    .drop-grid {
-      width: 100%;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .drop-zone {
-      border: 1px dashed #99b6e0;
-      border-radius: 10px;
-      background: #fbfdff;
-      padding: 10px;
-      color: #4d6480;
-      font-size: 13px;
-      min-height: 72px;
-      display: grid;
-      align-content: center;
-      gap: 4px;
-      transition: border-color .15s ease, background-color .15s ease;
-    }
-
-    .drop-zone strong { color: #1b3f66; }
-
-    .drop-zone.active {
-      border-color: #0f62fe;
-      background: #eef5ff;
-    }
-
-    .progress-wrap {
-      width: 100%;
-      display: grid;
-      gap: 6px;
-    }
-
-    .progress-label {
-      font-size: 12px;
-      color: #4b6280;
-      font-weight: 600;
-    }
-
-    .progress-track {
-      width: 100%;
-      height: 8px;
-      border-radius: 999px;
-      border: 1px solid #d4e2f5;
-      background: #f3f7fd;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      width: 0;
-      height: 100%;
-      background: linear-gradient(90deg, #1f6feb 0%, #0f62fe 100%);
-      transition: width .12s linear;
-    }
-
     .actions-pro {
       display: flex;
       align-items: center;
@@ -364,8 +297,8 @@
     }
 
     #sidebar {
-      width: 350px;
-      min-width: 250px;
+      width: 320px;
+      min-width: 230px;
       border: 1px solid var(--border);
       border-radius: 12px;
       background: var(--panel);
@@ -376,51 +309,17 @@
     }
 
     #sidebar-meta {
-      padding: 10px 12px;
+      padding: 8px 10px;
       border-bottom: 1px solid var(--border);
       color: #4c5a74;
       font-weight: 600;
+      font-size: 11px;
       background: var(--panel2);
+      position: sticky;
+      top: 0;
+      z-index: 2;
     }
 
-    .history-panel {
-      border-bottom: 1px solid var(--border);
-      padding: 10px 12px;
-      background: #fbfdff;
-      color: #3f5877;
-      font-size: 12px;
-      display: grid;
-      gap: 8px;
-    }
-
-    .history-panel h3 {
-      margin: 0;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      color: #25466a;
-    }
-
-    .history-list {
-      display: grid;
-      gap: 6px;
-      max-height: 132px;
-      overflow: auto;
-    }
-
-    .history-item {
-      border: 1px solid #d8e4f5;
-      border-radius: 8px;
-      padding: 6px 8px;
-      background: #fff;
-    }
-
-    .history-item strong {
-      display: block;
-      color: #204263;
-      margin-bottom: 2px;
-      font-size: 12px;
-    }
 
     #file-list {
       overflow: auto;
@@ -431,14 +330,18 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 11px;
+      padding: 6px 9px;
       border-bottom: 1px solid #edf1f8;
       cursor: default;
     }
 
     .file-item.clickable { cursor: pointer; }
     .file-item.clickable:hover { background: #f4f8ff; }
-    .file-item.active { background: #eaf2ff; }
+    .file-item.active {
+      background: #eaf2ff;
+      border-left: 3px solid var(--accent);
+      padding-left: 6px;
+    }
 
     .dot {
       width: 8px;
@@ -455,15 +358,16 @@
     .fname {
       flex: 1;
       min-width: 0;
-      white-space: nowrap;
+      white-space: normal;
       overflow: hidden;
-      text-overflow: ellipsis;
       font-family: "Courier New", Consolas, monospace;
-      font-size: 12px;
+      font-size: 11px;
+      line-height: 1.3;
+      word-break: break-word;
     }
 
     .status-pill {
-      font-size: 11px;
+      font-size: 10px;
       border: 1px solid var(--border);
       padding: 2px 6px;
       border-radius: 999px;
@@ -508,21 +412,25 @@
     }
 
     #summary {
-      display: flex;
-      gap: 16px;
-      padding: 10px 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 8px;
+      padding: 8px 10px;
       background: #f7f9fd;
       border-bottom: 1px solid var(--border);
       color: #4c5a74;
-      flex-wrap: wrap;
     }
 
     .summary-pill {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-weight: 700;
       border: 1px solid var(--border);
-      border-radius: 999px;
-      padding: 3px 8px;
+      border-radius: 8px;
+      padding: 5px 8px;
       background: #fff;
+      font-size: 11px;
     }
 
     #compare-navbar {
@@ -552,10 +460,10 @@
     .nav-btn {
       background: #fff;
       color: #13315d;
-      padding: 7px 13px;
+      padding: 6px 10px;
       font-weight: 600;
       border-radius: 6px;
-      font-size: 13px;
+      font-size: 12px;
       border: 1px solid #cbd9f0;
       min-width: 0;
       white-space: nowrap;
@@ -568,15 +476,15 @@
     }
 
     .nav-counter {
-      padding: 6px 14px;
+      padding: 5px 10px;
       background: #eaf2ff;
       border: 1px solid #a8c5ff;
       border-radius: 6px;
       color: #0f62fe;
       font-weight: 700;
-      font-size: 13px;
+      font-size: 12px;
       white-space: nowrap;
-      min-width: 88px;
+      min-width: 74px;
       text-align: center;
     }
 
@@ -589,11 +497,11 @@
       display: flex;
       gap: 12px;
       align-items: center;
-      padding: 10px 12px;
+      padding: 8px 10px;
       background: #f9fbff;
       border-bottom: 1px solid var(--border);
       color: #4f5f7a;
-      font-size: 12px;
+      font-size: 11px;
       flex-wrap: wrap;
     }
 
@@ -605,6 +513,7 @@
       color: #60708a;
       padding: 24px;
       text-align: center;
+      font-size: 12px;
     }
 
     #diff-wrap {
@@ -612,18 +521,20 @@
       flex: 1;
       min-height: 0;
       overflow: auto;
+      background: #fff;
+      border-top: 1px solid #eef2f8;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
-      font: 12px/1.5 "Courier New", Consolas, monospace;
+      font: 11px/1.45 "Courier New", Consolas, monospace;
     }
 
     th, td {
       border-bottom: 1px solid #edf1f8;
-      padding: 5px 8px;
+      padding: 4px 6px;
       vertical-align: top;
       white-space: pre-wrap;
       word-break: break-word;
@@ -639,25 +550,29 @@
     }
 
     .ln {
-      width: 60px;
+      width: 52px;
       color: #6b7280;
       text-align: right;
       border-right: 2px solid #e4ebf7;
-      padding-right: 8px;
+      padding-right: 6px;
     }
 
-    .code { width: calc(50% - 60px); }
+    .code { width: calc(50% - 52px); }
 
     .row-add .right { background: var(--delbg); color: var(--delfg); }
     .row-del .left { background: var(--addbg); color: var(--addfg); }
     .row-eq .left, .row-eq .right { color: var(--eq); }
+    .row-del .left, .row-add .right { font-weight: 600; }
+    .row-eq:nth-child(even) .left,
+    .row-eq:nth-child(even) .right { background: #fafcff; }
 
-    @media (max-width: 980px) {
-      main { flex-direction: column; }
-      #sidebar { width: 100%; max-height: 38vh; }
+    @media (max-width: 900px) {
       #content { min-height: 45vh; }
       .filter-panel input[type="text"] { width: 100%; max-width: 100%; }
-      .drop-grid { grid-template-columns: 1fr; }
+      #sidebar { width: 100%; min-width: 0; }
+      .summary-pill { font-size: 10px; }
+      .nav-btn { font-size: 11px; }
+      .nav-counter { font-size: 11px; }
     }
   </style>
 </head>
@@ -667,31 +582,22 @@
       <span class="logo-mark" aria-hidden="true"></span>
       <div class="menu-brand">Sopra HR Software - Comparators</div>
     </div>
-    <div class="menu-help" style="position:relative;display:flex;align-items:center">
-      <button class="menu-help-btn" type="button" aria-label="Afficher l'aide rapide">Comment ca marche ?</button>
-      <div class="menu-help-popover">
-        <h2 style="margin:0 0 8px 0;font-size:14px;color:#0b2545">Guide rapide pour nouveau utilisateur</h2>
-        <p style="margin:0 0 8px 0;color:#4f5f7a">Cette application compare deux dossiers entiers et detecte les fichiers manquants, modifies et identiques.</p>
-        <ol style="margin:0;padding-left:18px;color:#1f2937">
-          <li>Chargez le dossier A puis le dossier B (ou glissez-deposez).</li>
-          <li>Cliquez sur &quot;Comparer&quot; pour lancer l'analyse.</li>
-          <li>Selectionnez un fichier dans la liste pour voir les differences ligne par ligne.</li>
-          <li>Utilisez les filtres pour afficher uniquement les fichiers modifies, manquants ou identiques.</li>
-          <li>Exportez le rapport en CSV ou PDF si besoin.</li>
-        </ol>
+    <div class="menu-actions">
+      <div class="menu-help">
+        <button class="menu-help-btn" type="button" aria-label="Afficher l'aide rapide">Comment ca marche ?</button>
+        <div class="menu-help-popover">
+          <strong>Guide rapide</strong><br />
+          1) Chargez le dossier A puis le dossier B.<br />
+          2) Cliquez sur Comparer.<br />
+          3) Selectionnez un fichier modifie pour voir le diff.<br />
+          4) Utilisez le filtre pour affiner la liste.
+        </div>
       </div>
+      <a class="back-link" href="../index.html">Retour au portail</a>
     </div>
-    <a class="back-link" href="../index.html">Retour au portail</a>
   </div>
 
   <header>
-    <h1>Comparateur de Dossiers</h1>
-
-    <div id="onboarding" class="onboarding">
-      <div><strong>Onboarding rapide:</strong> 1) Chargez A/B ou glissez-deposez, 2) Cliquez Comparer, 3) Exportez ou partagez le rapport.</div>
-      <button id="dismissOnboarding" class="btn-ghost" type="button">Masquer</button>
-    </div>
-
     <div style="display:flex;align-items:center;gap:8px;">
       <button id="pickA">Ouvrir dossier A</button>
       <button id="fallbackA" class="btn-ghost">Choix alternatif A</button>
@@ -717,22 +623,6 @@
       <button id="shareReportBtn" class="btn-ghost" type="button">Partager rapport</button>
     </div>
 
-    <div class="drop-grid">
-      <div id="dropZoneA" class="drop-zone" data-target="A">
-        <strong>Deposer dossier/fichiers A</strong>
-        <span>Glissez un dossier ou plusieurs fichiers pour alimenter la colonne A.</span>
-      </div>
-      <div id="dropZoneB" class="drop-zone" data-target="B">
-        <strong>Deposer dossier/fichiers B</strong>
-        <span>Glissez un dossier ou plusieurs fichiers pour alimenter la colonne B.</span>
-      </div>
-    </div>
-
-    <div class="progress-wrap" aria-live="polite">
-      <div id="progressLabel" class="progress-label">Progression: 0%</div>
-      <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
-    </div>
-
     <div class="filter-panel">
       <input id="search" type="text" placeholder="Rechercher un chemin de fichier..." />
       <select id="viewMode">
@@ -749,12 +639,6 @@
   <main>
     <aside id="sidebar">
       <div id="sidebar-meta">Aucun resultat pour le moment</div>
-      <div class="history-panel">
-        <h3>Comparaisons recentes</h3>
-        <div id="historyList" class="history-list">
-          <div style="color:#60708a;">Aucun historique pour le moment.</div>
-        </div>
-      </div>
       <div id="file-list"></div>
     </aside>
 
@@ -827,7 +711,6 @@
       currentDiffIdx: -1,
       isLoading: false,
       startedAt: 0,
-      recentHistory: []
     };
 
     const els = {
@@ -846,16 +729,9 @@
       search: document.getElementById("search"),
       viewMode: document.getElementById("viewMode"),
       status: document.getElementById("status"),
-      onboarding: document.getElementById("onboarding"),
-      dismissOnboarding: document.getElementById("dismissOnboarding"),
-      progressFill: document.getElementById("progressFill"),
-      progressLabel: document.getElementById("progressLabel"),
-      dropZoneA: document.getElementById("dropZoneA"),
-      dropZoneB: document.getElementById("dropZoneB"),
       exportCsvBtn: document.getElementById("exportCsvBtn"),
       exportPdfBtn: document.getElementById("exportPdfBtn"),
       shareReportBtn: document.getElementById("shareReportBtn"),
-      historyList: document.getElementById("historyList"),
       sidebarMeta: document.getElementById("sidebar-meta"),
       fileList: document.getElementById("file-list"),
       countOnlyA: document.getElementById("countOnlyA"),
@@ -883,15 +759,6 @@
       els.status.textContent = msg;
     }
 
-    const HISTORY_KEY = "comparators-folder-history-v1";
-    const ONBOARDING_KEY = "comparators-folder-onboarding-hidden";
-
-    function setProgress(percent, label) {
-      const safe = Math.max(0, Math.min(100, Math.round(percent)));
-      els.progressFill.style.width = `${safe}%`;
-      els.progressLabel.textContent = label || `Progression: ${safe}%`;
-    }
-
     function setLoading(isLoading) {
       state.isLoading = isLoading;
       els.compareBtn.disabled = isLoading;
@@ -906,62 +773,6 @@
       }
     }
 
-    function loadHistory() {
-      try {
-        const raw = localStorage.getItem(HISTORY_KEY);
-        state.recentHistory = raw ? JSON.parse(raw) : [];
-      } catch (_) {
-        state.recentHistory = [];
-      }
-      if (!Array.isArray(state.recentHistory)) {
-        state.recentHistory = [];
-      }
-    }
-
-    function saveHistory() {
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(state.recentHistory.slice(0, 10)));
-    }
-
-    function renderHistory() {
-      if (!state.recentHistory.length) {
-        els.historyList.innerHTML = '<div style="color:#60708a;">Aucun historique pour le moment.</div>';
-        return;
-      }
-      els.historyList.innerHTML = state.recentHistory
-        .map((item) => {
-          const when = new Date(item.at).toLocaleString();
-          return `
-            <div class="history-item">
-              <strong>${escapeHtml(item.label)}</strong>
-              <div>${escapeHtml(when)} | changes: ${item.changed} | same: ${item.same}</div>
-            </div>
-          `;
-        })
-        .join("");
-    }
-
-    function appendHistoryEntry() {
-      if (!state.results) return;
-      const entry = {
-        at: Date.now(),
-        label: `${state.folderAName || "A"} vs ${state.folderBName || "B"}`,
-        changed: state.results.changed.length,
-        same: state.results.same.length,
-        onlyA: state.results.onlyA.length,
-        onlyB: state.results.onlyB.length,
-        durationMs: Date.now() - state.startedAt
-      };
-      state.recentHistory.unshift(entry);
-      state.recentHistory = state.recentHistory.slice(0, 10);
-      saveHistory();
-      renderHistory();
-    }
-
-    function hideOnboardingIfNeeded() {
-      if (localStorage.getItem(ONBOARDING_KEY) === "1") {
-        els.onboarding.style.display = "none";
-      }
-    }
 
     function exportCsvReport() {
       if (!state.results) {
@@ -1308,7 +1119,6 @@
 
       setLoading(true);
       state.startedAt = Date.now();
-      setProgress(0, "Progression: preparation...");
       try {
         setStatus("Comparaison des fichiers...");
         const keysA = Array.from(state.mapA.keys()).sort();
@@ -1337,8 +1147,7 @@
             else changed.push(rel);
           }
 
-          const p = common.length ? ((i + 1) / common.length) * 100 : 100;
-          setProgress(p, `Progression: ${Math.round(p)}% (${i + 1}/${common.length})`);
+
         }
 
         state.results = { onlyA, onlyB, changed, same };
@@ -1346,11 +1155,9 @@
         renderSummary();
         renderSidebar();
         clearDiff();
-        appendHistoryEntry();
         setStatus(`Termine. ${common.length} fichiers communs analyses.`);
       } finally {
         setLoading(false);
-        setProgress(100, "Progression: 100%");
       }
     }
 
@@ -1677,39 +1484,6 @@
       }
     }
 
-    function bindDropZone(zone, which) {
-      const setActive = (on) => zone.classList.toggle("active", on);
-      zone.addEventListener("dragenter", (e) => { e.preventDefault(); setActive(true); });
-      zone.addEventListener("dragover", (e) => { e.preventDefault(); setActive(true); });
-      zone.addEventListener("dragleave", (e) => {
-        if (!zone.contains(e.relatedTarget)) setActive(false);
-      });
-      zone.addEventListener("drop", async (e) => {
-        e.preventDefault();
-        setActive(false);
-        if (!e.dataTransfer) return;
-        setLoading(true);
-        try {
-          setStatus(`Import ${which} via glisser-deposer...`);
-          const { map, folderName } = await mapFromDataTransfer(e.dataTransfer);
-          if (which === "A") {
-            state.mapA = map;
-            state.folderAName = folderName || "Dossier A";
-            renderFolderMeta("A");
-          } else {
-            state.mapB = map;
-            state.folderBName = folderName || "Dossier B";
-            renderFolderMeta("B");
-          }
-          setStatus(`${which} charge (${map.size} fichiers) via glisser-deposer`);
-        } catch (err) {
-          console.error(err);
-          setStatus(`Echec du depot ${which}`);
-        } finally {
-          setLoading(false);
-        }
-      });
-    }
 
     function bindEvents() {
       els.pickA.addEventListener("click", () => selectFolder("A"));
@@ -1725,17 +1499,9 @@
       els.resetBtn.addEventListener("click", resetAll);
       els.clearA.addEventListener("click", () => clearSide("A"));
       els.clearB.addEventListener("click", () => clearSide("B"));
-      els.dismissOnboarding.addEventListener("click", () => {
-        els.onboarding.style.display = "none";
-        localStorage.setItem(ONBOARDING_KEY, "1");
-      });
       els.exportCsvBtn.addEventListener("click", exportCsvReport);
       els.exportPdfBtn.addEventListener("click", exportPdfSummary);
       els.shareReportBtn.addEventListener("click", shareReportLink);
-
-      bindDropZone(els.dropZoneA, "A");
-      bindDropZone(els.dropZoneB, "B");
-
       els.fileFirst.addEventListener("click", () => jumpChanged(0));
       els.filePrev.addEventListener("click", () => stepChanged(-1));
       els.fileNext.addEventListener("click", () => stepChanged(1));
@@ -1762,11 +1528,7 @@
     }
 
     renderSummary();
-    loadHistory();
-    renderHistory();
-    hideOnboardingIfNeeded();
     loadSharedReportFromHash();
-    setProgress(0, "Progression: 0%");
     clearDiff("Chargez les dossiers A et B, cliquez sur Comparer, puis selectionnez un fichier modifie dans le panneau gauche.");
     bindEvents();
     updateFileNav();
