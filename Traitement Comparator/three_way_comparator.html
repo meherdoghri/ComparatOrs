@@ -1,0 +1,1166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comparateur de Traitements</title>
+  <style>
+    :root {
+      --bg: #f2f5fb;
+      --panel: #ffffff;
+      --panel2: #f7f9fd;
+      --border: #d8e0ef;
+      --text: #1f2937;
+      --muted: #667085;
+      --accent: #0f62fe;
+      --menu: #0b2545;
+      --menuText: #e8eefc;
+      --line: #d8e0ef;
+      --diff: #7c2d12;
+      --diff-soft: #fff6e7;
+      --same: #ffffff;
+      --added-bg: #e9f9ee;
+      --added-border: #86d39f;
+      --modified-bg: #fff6e7;
+      --modified-border: #d97b00;
+      --deleted-bg: #feefee;
+      --deleted-border: #f2a4b9;
+      --extra-bg: #eff6ff;
+      --extra-border: #3b82f6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg,#f4f7fd 0%,#eef3fb 100%);
+      color: var(--text);
+      font-family: "IBM Plex Sans","Trebuchet MS",Verdana,sans-serif;
+      font-size: 13px;
+    }
+    .top {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 46px;
+      background: var(--panel);
+      z-index: 10;
+      box-shadow: 0 2px 8px rgba(8,35,77,.06);
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      align-items: stretch;
+      transition: grid-template-columns 0.2s;
+    }
+    .controls.mode-2 {
+      grid-template-columns: 1fr 1fr;
+    }
+    .file-box {
+      display: grid;
+      gap: 6px;
+      min-width: 220px;
+    }
+    label { font-size: 12px; color: var(--muted); }
+    input[type="text"] {
+      width: 100%;
+      padding: 6px 9px;
+      border: 1px solid #c9d6ee;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+    }
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      resize: vertical;
+      padding: 8px;
+      border: 1px solid #c9d6ee;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      font-family: Consolas, Menlo, monospace;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .actions {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      height: 34px;
+      padding: 0 14px;
+      border: 1px solid #b9c7e6;
+      background: #1f6feb;
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font: inherit;
+      font-weight: 600;
+    }
+    .btn:hover { background: #0f62fe; }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .row2 {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      background: linear-gradient(90deg,#f0f4ff 0%,#f5f9ff 100%);
+      border: 1px solid #d6e3f7;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+    .row2 label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: #4c5a74;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .row2 label:hover { color: #0b2545; }
+    .row2 label input { accent-color: #0f62fe; cursor: pointer; }
+    .row2-sep { border-left: 1px solid #c7d8f6; height: 18px; margin: 0 4px; flex-shrink: 0; }
+    .warn {
+      color: #9f1239;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .summary {
+      color: #4c5a74;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .verdict {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+    }
+    .verdict.ok {
+      color: #166534;
+      background: #e9f9ee;
+      border-color: #86d39f;
+    }
+    .verdict.fail {
+      color: #9f1239;
+      background: #feefee;
+      border-color: #f2a4b9;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      height: calc(100vh - 120px);
+      min-height: 360px;
+      transition: grid-template-columns 0.2s;
+    }
+    .grid.mode-2 {
+      grid-template-columns: 1fr 1fr;
+    }
+    .col {
+      border-right: 1px solid var(--border);
+      overflow: auto;
+    }
+    .col:last-child { border-right: none; }
+    .head {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: var(--panel2);
+      border-bottom: 2px solid var(--border);
+      padding: 8px 10px 6px;
+      overflow: hidden;
+    }
+    .head-name {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #0b2545;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .head-statsbar {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+      min-height: 16px;
+    }
+    .hstat { padding: 1px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+    .hstat-mod  { background: var(--modified-bg); color: #d97b00; border: 1px solid var(--modified-border); }
+    .hstat-add  { background: var(--added-bg);    color: #166534; border: 1px solid var(--added-border); }
+    .hstat-del  { background: var(--deleted-bg);  color: #9f1239; border: 1px solid var(--deleted-border); }
+    .hstat-ok   { background: #e9f9ee; color: #166534; border: 1px solid #86d39f; }
+    .hstat-miss { background: #feefee; color: #9f1239; border: 1px solid #f2a4b9; }
+    .head-role  { font-size: 10px; color: #667085; font-style: italic; margin-left: 6px; letter-spacing: 0.03em; }
+    /* V1 lines: no left border — it is the reference, not the subject */
+    #col1 .line.modified { box-shadow: none; background: #fdf4e4; }
+    #col1 .line.deleted  { box-shadow: none; background: #fef5f5; }
+    #col1 .line.added    { box-shadow: none; background: #f3fbf5; }
+    #col1 .line-text     { color: #8a9ab8; }
+    #col1 .line.modified .line-text,
+    #col1 .line.deleted  .line-text { color: #9aaabf; }
+    .line {
+      display: grid;
+      grid-template-columns: 52px 18px 1fr;
+      gap: 0;
+      border-bottom: 1px solid #edf1f8;
+      font-family: Consolas, Menlo, monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      white-space: pre;
+      min-height: 22px;
+      align-items: stretch;
+    }
+    .line.same     { background: var(--same); }
+    .line.modified { background: var(--modified-bg); box-shadow: inset 4px 0 0 var(--modified-border); }
+    .line.added    { background: var(--added-bg);    box-shadow: inset 4px 0 0 var(--added-border); }
+    .line.deleted  { background: var(--deleted-bg);  box-shadow: inset 4px 0 0 var(--deleted-border); }
+    .line.extra-f3 { background: var(--extra-bg);   box-shadow: inset 4px 0 0 var(--extra-border); }
+    .line.gap { background: #f4f7fd; }
+    .line.gap .line-number  { visibility: hidden; }
+    .line.gap .line-gutter  { color: transparent; }
+    .line.gap .line-text    { color: #c5cfe0; }
+    .line.verified { outline: 2px solid rgba(22,101,52,0.3); outline-offset: -2px; }
+    .line.missing  { outline: 2px solid rgba(159,18,57,0.4); outline-offset: -2px; }
+    .line-number {
+      color: #6b7280;
+      user-select: none;
+      text-align: right;
+      padding: 0 6px 0 0;
+      border-right: 2px solid #e4ebf7;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    .line-gutter {
+      width: 18px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .gutter-mod  { color: #d97b00; }
+    .gutter-add  { color: #166534; }
+    .gutter-del  { color: #9f1239; }
+    .gutter-ok   { color: #166534; }
+    .gutter-miss { color: #9f1239; }
+    .gutter-xtra { color: #0f62fe; }
+    .line-text {
+      overflow: visible;
+      padding: 0 8px;
+      color: var(--text);
+    }
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+    .ch-del { background: rgba(159,18,57,.16); border-radius: 2px; padding: 0 1px; font-weight:600; }
+    .ch-ins { background: rgba(22,101,52,.18); border-radius: 2px; padding: 0 1px; font-weight:600; }
+    .legend {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: #4f5f7a;
+      font-size: 12px;
+    }
+    .swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+    .sw-same { background: #f7f9fd; border: 1px solid #d8e0ef; }
+    .sw-diff { background: var(--diff-soft); border: 1px solid #f0c78f; }
+    .hidden { display: none !important; }
+    .mode-toggle {
+      display: flex;
+      gap: 0;
+      margin-bottom: 8px;
+    }
+    .mode-toggle button {
+      padding: 6px 16px;
+      border: 1px solid #c9d6ee;
+      background: #f4f8ff;
+      color: #244776;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      font: inherit;
+      font-weight: 600;
+    }
+    .mode-toggle button:first-child {
+      border-radius: 8px 0 0 8px;
+    }
+    .mode-toggle button:last-child {
+      border-radius: 0 8px 8px 0;
+    }
+    .mode-toggle button.active {
+      background: #1f6feb;
+      color: #fff;
+      border-color: #b9c7e6;
+    }
+    .mode-toggle button:not(.active):hover {
+      background: #eaf2ff;
+      color: #17335b;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-menu" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;background:linear-gradient(90deg,#0b2545 0%,#163b6c 100%);color:#e8eefc;border-bottom:1px solid #244a7f;position:sticky;top:0;z-index:20">
+    <span style="font-size:15px;font-weight:700;letter-spacing:.2px">Comparateur de Traitements</span>
+    <div class="menu-help" style="position:relative;display:flex;align-items:center">
+      <button class="menu-help-btn" type="button" style="border:1px solid rgba(232,238,252,.36);background:rgba(255,255,255,.08);color:#e8eefc;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;cursor:help;letter-spacing:.2px;font:inherit;font-weight:700">Comment ca marche ?</button>
+      <div class="menu-help-popover" style="position:absolute;top:calc(100% + 8px);right:0;width:min(460px,86vw);padding:14px;background:#fff;border:1px solid #c9d6ee;border-radius:10px;box-shadow:0 14px 30px rgba(8,35,77,.24);color:#1f2937;opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .18s ease,transform .18s ease;z-index:30">
+        <h2 style="margin:0 0 8px 0;font-size:14px;color:#0b2545">Guide rapide pour nouveau utilisateur</h2>
+        <p style="margin:0 0 8px 0;color:#4f5f7a;font-size:12px;line-height:1.45">Comparez 2 ou 3 versions d'un fichier texte en collant directement le contenu.</p>
+        <ol style="margin:0;padding-left:18px;color:#1f2937;font-size:12px;line-height:1.5">
+          <li>Choisissez le mode 2 ou 3 fichiers.</li>
+          <li>Collez le contenu de chaque version dans les zones texte correspondantes.</li>
+          <li>Cliquez sur "Comparer" pour voir les differences.</li>
+          <li>Utilisez "Verifier le delta dans V3" (mode 3 fichiers) pour verifier si les changements V1&rarr;V2 sont bien presents dans V3.</li>
+          <li>Cochez les filtres pour afficher uniquement les lignes differentes.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <style>.menu-help:hover .menu-help-popover,.menu-help:focus-within .menu-help-popover{opacity:1!important;transform:translateY(0)!important;pointer-events:auto!important}</style>
+  <div class="top">
+    <div class="mode-toggle">
+      <button id="mode2Btn" type="button">2 fichiers</button>
+      <button id="mode3Btn" type="button" class="active">3 fichiers</button>
+    </div>
+    <div class="controls" id="controlsGrid">
+      <div class="file-box">
+        <input id="name1" type="text" value="Suite 7" />
+        <label>Coller le contenu de la version 1</label>
+        <textarea id="text1" placeholder="Collez le contenu du fichier ici..."></textarea>
+      </div>
+      <div class="file-box">
+        <input id="name2" type="text" value="Suite 7 Actuelle" />
+        <label>Coller le contenu de la version 2</label>
+        <textarea id="text2" placeholder="Collez le contenu du fichier ici..."></textarea>
+      </div>
+      <div class="file-box" id="fileBox3">
+        <input id="name3" type="text" value="4YOU" />
+        <label>Coller le contenu de la version 3</label>
+        <textarea id="text3" placeholder="Collez le contenu du fichier ici..."></textarea>
+      </div>
+    </div>
+    <div class="actions">
+      <button id="compareBtn" class="btn" disabled>Comparer</button>
+      <button id="checkDeltaBtn" class="btn" type="button" disabled style="background:#0a5c36;border-color:#86d39f;" title="Disponible uniquement en mode 3 fichiers">Verifier le delta dans V3</button>
+      <button id="clearBtn" class="btn" type="button" style="background:#f4f8ff;color:#244776;border:1px solid #c7d8f6;">Effacer</button>
+      <span id="verdict" class="verdict"></span>
+    </div>
+    <div class="row2">
+      <label><input id="onlyDiff" type="checkbox" /> Afficher uniquement les lignes differentes</label>
+      <label><input id="onlyDelta" type="checkbox" /> Afficher uniquement le delta V1&rarr;V2</label>
+      <label><input id="ignoreTrailing" type="checkbox" /> Ignorer les espaces en fin de ligne</label>
+      <label><input id="stripLineNumbers" type="checkbox" /> Supprimer les numeros de ligne en debut</label>
+      <span class="row2-sep"></span>
+      <span class="legend"><span class="swatch sw-same"></span> identique</span>
+      <span class="legend"><span class="swatch" style="background:var(--added-bg);border:1px solid var(--added-border);"></span> ajoute</span>
+      <span class="legend"><span class="swatch" style="background:var(--modified-bg);border:1px solid var(--modified-border);"></span> modifie</span>
+      <span class="legend"><span class="swatch" style="background:var(--deleted-bg);border:1px solid var(--deleted-border);"></span> supprime</span>
+      <span class="legend"><span class="swatch" style="background:transparent;border:1px solid #0891b2;"></span> verifie dans V3</span>
+      <span class="legend"><span class="swatch" style="background:transparent;border:1px solid #facc15;"></span> absent dans V3</span>
+      <span id="stats"></span>
+      <span id="deltaSummary" class="summary"></span>
+      <span id="warning" class="warn"></span>
+    </div>
+  </div>
+
+  <div class="grid" id="gridContainer">
+    <div class="col" id="col1">
+      <div class="head" id="head1"><span class="head-name" id="headname1">Fichier 1</span><span class="head-role">original</span><div class="head-statsbar" id="headstats1"></div></div>
+      <div id="body1"></div>
+    </div>
+    <div class="col" id="col2">
+      <div class="head" id="head2"><span class="head-name" id="headname2">Fichier 2</span><span class="head-role">changements vs original</span><div class="head-statsbar" id="headstats2"></div></div>
+      <div id="body2"></div>
+    </div>
+    <div class="col" id="col3">
+      <div class="head" id="head3"><span class="head-name" id="headname3">Fichier 3</span><span class="head-role">presence du delta</span><div class="head-statsbar" id="headstats3"></div></div>
+      <div id="body3"></div>
+    </div>
+  </div>
+
+  <script>
+    const name1Input = document.getElementById('name1');
+    const name2Input = document.getElementById('name2');
+    const name3Input = document.getElementById('name3');
+    const text1Input = document.getElementById('text1');
+    const text2Input = document.getElementById('text2');
+    const text3Input = document.getElementById('text3');
+    const compareBtn = document.getElementById('compareBtn');
+    const checkDeltaBtn = document.getElementById('checkDeltaBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const onlyDiff = document.getElementById('onlyDiff');
+    const onlyDelta = document.getElementById('onlyDelta');
+    const ignoreTrailing = document.getElementById('ignoreTrailing');
+    const stripLineNumbers = document.getElementById('stripLineNumbers');
+    const mode2Btn = document.getElementById('mode2Btn');
+    const mode3Btn = document.getElementById('mode3Btn');
+    const fileBox3 = document.getElementById('fileBox3');
+    const controlsGrid = document.getElementById('controlsGrid');
+    const gridContainer = document.getElementById('gridContainer');
+
+    let currentMode = 3; // 2 or 3
+
+    const head1 = document.getElementById('head1');
+    const head2 = document.getElementById('head2');
+    const head3 = document.getElementById('head3');
+    const headname1 = document.getElementById('headname1');
+    const headname2 = document.getElementById('headname2');
+    const headname3 = document.getElementById('headname3');
+    const body1 = document.getElementById('body1');
+    const body2 = document.getElementById('body2');
+    const body3 = document.getElementById('body3');
+    const stats = document.getElementById('stats');
+    const deltaSummary = document.getElementById('deltaSummary');
+    const warning = document.getElementById('warning');
+    const verdict = document.getElementById('verdict');
+
+    const col1 = document.getElementById('col1');
+    const col2 = document.getElementById('col2');
+    const col3 = document.getElementById('col3');
+
+    let syncLock = false;
+    let cacheRows = [];
+    const MAX_EXACT_COMPLEXITY = 12_000_000;
+
+    function normalize(text) {
+      let lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+      if (lines.length > 1 && lines[lines.length - 1] === '') {
+        lines.pop();
+      }
+      if (stripLineNumbers.checked) {
+        lines = lines.map(line => line.replace(/^\s*\d{2,6}\s/, ''));
+      }
+      return lines;
+    }
+
+    function markEnabled() {
+      const has1 = text1Input.value.trim().length > 0;
+      const has2 = text2Input.value.trim().length > 0;
+      const has3 = text3Input.value.trim().length > 0;
+      if (currentMode === 2) {
+        const enabled = has1 && has2;
+        compareBtn.disabled = !enabled;
+        checkDeltaBtn.disabled = true;
+      } else {
+        const enabled = has1 && has2 && has3;
+        compareBtn.disabled = !enabled;
+        checkDeltaBtn.disabled = !enabled;
+      }
+    }
+
+    function clearVerdict() {
+      verdict.textContent = '';
+      verdict.className = 'verdict';
+    }
+
+    function evaluateDeltaPresence(rows) {
+      let totalDeltaRows = 0;
+      let presentDeltaRows = 0;
+      let missingDeltaRows = 0;
+      const sampleMissing = [];
+
+      for (const row of rows) {
+        if (!row.isDelta) continue;
+
+        totalDeltaRows++;
+        if (row.deltaPresentInV3) {
+          presentDeltaRows++;
+        } else {
+          missingDeltaRows++;
+          if (sampleMissing.length < 5) {
+            if (row.deltaKind === 'deleted') {
+              sampleMissing.push(`Bloc supprime pres de la ligne V1 ${row.n1}`);
+            } else {
+              sampleMissing.push(`Ligne V2 ${row.n2}`);
+            }
+          }
+        }
+      }
+
+      return { totalDeltaRows, presentDeltaRows, missingDeltaRows, sampleMissing };
+    }
+
+    function showVerdict() {
+      if (cacheRows.length === 0) {
+        clearVerdict();
+        deltaSummary.textContent = '';
+        return;
+      }
+
+      const { totalDeltaRows, presentDeltaRows, missingDeltaRows, sampleMissing } = evaluateDeltaPresence(cacheRows);
+      const v1Name = (name1Input.value || 'Version 1').trim();
+      const v2Name = (name2Input.value || 'Version 2').trim();
+      const v3Name = (name3Input.value || 'Version 3').trim();
+
+      deltaSummary.textContent = totalDeltaRows === 0
+        ? 'lignes delta: 0'
+        : `lignes delta: ${totalDeltaRows} | verifiees dans ${v3Name}: ${presentDeltaRows} | absentes dans ${v3Name}: ${missingDeltaRows}`;
+
+      if (totalDeltaRows === 0) {
+        verdict.className = 'verdict ok';
+        verdict.textContent = `Aucun delta detecte entre ${v1Name} et ${v2Name}.`;
+        return;
+      }
+
+      if (missingDeltaRows === 0) {
+        verdict.className = 'verdict ok';
+        verdict.textContent = `SUCCES: ${v3Name} contient toutes les lignes delta de ${v1Name} -> ${v2Name} (${presentDeltaRows}/${totalDeltaRows}).`;
+      } else {
+        verdict.className = 'verdict fail';
+        const details = sampleMissing.length ? ` Manquants: ${sampleMissing.join(', ')}.` : '';
+        verdict.textContent = `ECHEC: ${v3Name} n'a pas ${missingDeltaRows} lignes delta sur ${totalDeltaRows} de ${v1Name} -> ${v2Name}.${details}`;
+      }
+    }
+
+    function buildLine(lineNumber, text, cellKind, extraClass = '', charSegs = null, gutterSymbol = '', gutterClass = '') {
+      const row = document.createElement('div');
+      row.className = `line ${cellKind}${extraClass ? ` ${extraClass}` : ''}`;
+
+      const num = document.createElement('div');
+      num.className = 'line-number';
+      num.textContent = lineNumber > 0 ? String(lineNumber) : '';
+
+      const gutter = document.createElement('div');
+      gutter.className = `line-gutter${gutterClass ? ' ' + gutterClass : ''}`;
+      gutter.textContent = gutterSymbol;
+
+      const txt = document.createElement('div');
+      txt.className = 'line-text';
+      if (charSegs && charSegs.length > 0 && text !== '') {
+        for (const seg of charSegs) {
+          if (seg.k === 's') {
+            txt.appendChild(document.createTextNode(seg.t));
+          } else {
+            const span = document.createElement('span');
+            span.className = seg.k === 'd' ? 'ch-del' : 'ch-ins';
+            span.textContent = seg.t;
+            txt.appendChild(span);
+          }
+        }
+      } else if (cellKind === 'gap') {
+        txt.textContent = '···';
+      } else {
+        txt.textContent = text === '' ? (cellKind === 'deleted' ? '∅' : ' ') : text;
+      }
+      if (lineNumber === 0 && cellKind !== 'gap') txt.classList.add('empty');
+
+      row.appendChild(num);
+      row.appendChild(gutter);
+      row.appendChild(txt);
+      return row;
+    }
+
+    function gutterForKind2(k2, isDelta, deltaKind) {
+      if (k2 === 'modified') return { sym: '~', cls: 'gutter-mod' };
+      if (k2 === 'added')    return { sym: '+', cls: 'gutter-add' };
+      if (isDelta && deltaKind === 'deleted') return { sym: '-', cls: 'gutter-del' };
+      return { sym: '', cls: '' };
+    }
+
+    function gutterForK3(k3, v3StatusClass) {
+      if (k3 === 'extra-f3')              return { sym: '\u2605', cls: 'gutter-xtra' };
+      if (v3StatusClass === 'verified')   return { sym: '\u2713', cls: 'gutter-ok' };
+      if (v3StatusClass === 'missing')    return { sym: '\u2717', cls: 'gutter-miss' };
+      return { sym: '', cls: '' };
+    }
+
+    function render(rows) {
+      body1.innerHTML = '';
+      body2.innerHTML = '';
+      body3.innerHTML = '';
+
+      let sameCount = 0;
+      let diffCount = 0;
+
+      for (const row of rows) {
+        if (onlyDiff.checked && !row.isDiff) continue;
+        if (onlyDelta.checked && !row.isDelta) continue;
+
+        const g2 = gutterForKind2(row.k2, row.isDelta, row.deltaKind);
+        const g3 = gutterForK3(row.k3, row.v3StatusClass);
+
+        body1.appendChild(buildLine(row.n1, row.t1, row.k1, '', row.charSegs1 || null, '', ''));
+        body2.appendChild(buildLine(row.n2, row.t2, row.k2, '', row.charSegs2 || null, g2.sym, g2.cls));
+        if (currentMode === 3) {
+          body3.appendChild(buildLine(row.n3, row.t3, row.k3, row.v3StatusClass, row.charSegs3 || null, g3.sym, g3.cls));
+        }
+
+        if (row.isDiff) diffCount++; else sameCount++;
+      }
+
+      stats.textContent = `lignes identiques: ${sameCount} | lignes differentes: ${diffCount}`;
+    }
+
+    function buildLcsTable(a, b) {
+      const n = a.length;
+      const m = b.length;
+      const dp = Array.from({ length: n + 1 }, () => new Uint32Array(m + 1));
+
+      for (let i = n - 1; i >= 0; i--) {
+        for (let j = m - 1; j >= 0; j--) {
+          if (a[i] === b[j]) {
+            dp[i][j] = dp[i + 1][j + 1] + 1;
+          } else {
+            dp[i][j] = Math.max(dp[i + 1][j], dp[i][j + 1]);
+          }
+        }
+      }
+      return dp;
+    }
+
+    function compareLine(a, b) {
+      if (ignoreTrailing.checked) {
+        return a.trimEnd() === b.trimEnd();
+      }
+      return a === b;
+    }
+
+    function levenshteinDistance(a, b) {
+      const m = a.length;
+      const n = b.length;
+      const dp = Array.from({ length: m + 1 }, () => new Uint32Array(n + 1));
+      for (let i = 0; i <= m; i++) dp[i][0] = i;
+      for (let j = 0; j <= n; j++) dp[0][j] = j;
+      for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+          if (a[i - 1] === b[j - 1]) {
+            dp[i][j] = dp[i - 1][j - 1];
+          } else {
+            dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+          }
+        }
+      }
+      return dp[m][n];
+    }
+
+    function isFuzzyMatch(a, b) {
+      if (a === '' || b === '') return false;
+      const maxLen = Math.max(a.length, b.length);
+      const threshold = Math.max(2, Math.ceil(maxLen * 0.1));
+      return levenshteinDistance(a, b) <= threshold;
+    }
+
+    function charDiffPair(a, b) {
+      if (a.length > 500 || b.length > 500) return null;
+      const n = a.length, m = b.length;
+      const dp = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+      for (let i = n - 1; i >= 0; i--)
+        for (let j = m - 1; j >= 0; j--)
+          dp[i][j] = a[i] === b[j] ? dp[i+1][j+1]+1 : Math.max(dp[i+1][j], dp[i][j+1]);
+      const raw1 = [], raw2 = [];
+      let i = 0, j = 0;
+      while (i < n && j < m) {
+        if (a[i] === b[j]) {
+          raw1.push({ t: a[i], k: 's' });
+          raw2.push({ t: b[j], k: 's' });
+          i++; j++;
+        } else if (dp[i+1][j] >= dp[i][j+1]) {
+          raw1.push({ t: a[i], k: 'd' }); i++;
+        } else {
+          raw2.push({ t: b[j], k: 'i' }); j++;
+        }
+      }
+      while (i < n) raw1.push({ t: a[i++], k: 'd' });
+      while (j < m) raw2.push({ t: b[j++], k: 'i' });
+      function merge(segs) {
+        const out = [];
+        for (const s of segs) {
+          if (out.length && out[out.length-1].k === s.k) out[out.length-1].t += s.t;
+          else out.push({ t: s.t, k: s.k });
+        }
+        return out;
+      }
+      return { segs1: merge(raw1), segs2: merge(raw2) };
+    }
+
+    function getDeltaMeta(n1, n2, n3, t1, t2, t3) {
+      if (n2 > 0) {
+        if (n1 === 0) {
+          const presentInV3 = compareLine(t2, t3);
+          return {
+            isDelta: true,
+            deltaKind: 'added',
+            deltaPresentInV3: presentInV3,
+            k2: 'added',
+            v3StatusClass: presentInV3 ? 'verified' : 'missing',
+          };
+        }
+
+        if (!compareLine(t1, t2)) {
+          const presentInV3 = compareLine(t2, t3);
+          return {
+            isDelta: true,
+            deltaKind: 'modified',
+            deltaPresentInV3: presentInV3,
+            k2: 'modified',
+            v3StatusClass: presentInV3 ? 'verified' : 'missing',
+          };
+        }
+
+        return {
+          isDelta: false,
+          deltaKind: 'none',
+          deltaPresentInV3: true,
+          k2: 'same',
+          v3StatusClass: '',
+        };
+      }
+
+      if (n1 > 0) {
+        const presentInV3 = n3 === 0;
+        return {
+          isDelta: true,
+          deltaKind: 'deleted',
+          deltaPresentInV3: presentInV3,
+          k2: 'gap',
+          v3StatusClass: presentInV3 ? 'verified' : 'missing',
+        };
+      }
+
+      return {
+        isDelta: false,
+        deltaKind: 'none',
+        deltaPresentInV3: true,
+        k2: 'gap',
+        v3StatusClass: '',
+      };
+    }
+
+    function alignOtherToBase(baseLines, otherLines) {
+      const n = baseLines.length;
+      const m = otherLines.length;
+
+      const insertBefore = Array.from({ length: n + 1 }, () => []);
+      const mapOnBase = new Array(n).fill(null);
+
+      const complexity = n * m;
+      if (complexity > MAX_EXACT_COMPLEXITY) {
+        throw new Error(`Alignement exact trop volumineux (${n}x${m} lignes). Decoupez le fichier ou comparez des blocs plus petits.`);
+      }
+
+      const dp = buildLcsTable(baseLines, otherLines);
+
+      let i = 0;
+      let j = 0;
+      while (i < n && j < m) {
+        if (compareLine(baseLines[i], otherLines[j])) {
+          mapOnBase[i] = j;
+          i++;
+          j++;
+        } else if (isFuzzyMatch(baseLines[i], otherLines[j])) {
+          mapOnBase[i] = j;
+          i++;
+          j++;
+        } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+          mapOnBase[i] = null;
+          i++;
+        } else {
+          insertBefore[i].push(j);
+          j++;
+        }
+      }
+
+      while (i < n) {
+        mapOnBase[i] = null;
+        i++;
+      }
+      while (j < m) {
+        insertBefore[n].push(j);
+        j++;
+      }
+
+      return { insertBefore, mapOnBase };
+    }
+
+    function alignInsertedBuckets(lines1, idxs1, lines3, idxs3) {
+      const seq1 = idxs1.map(i => lines1[i]);
+      const seq3 = idxs3.map(i => lines3[i]);
+
+      const n = seq1.length;
+      const m = seq3.length;
+      if (n === 0 && m === 0) return [];
+      if (n === 0) return idxs3.map(i3 => ({ i1: null, i3 }));
+      if (m === 0) return idxs1.map(i1 => ({ i1, i3: null }));
+
+      const complexity = n * m;
+      if (complexity > MAX_EXACT_COMPLEXITY) {
+        throw new Error(`Alignement exact des blocs inseres trop volumineux (${n}x${m} lignes). Decoupez le fichier ou comparez des blocs plus petits.`);
+      }
+
+      const dp = buildLcsTable(seq1, seq3);
+      const rows = [];
+      let i = 0;
+      let j = 0;
+
+      while (i < n && j < m) {
+        if (compareLine(seq1[i], seq3[j])) {
+          rows.push({ i1: idxs1[i], i3: idxs3[j] });
+          i++;
+          j++;
+        } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+          rows.push({ i1: idxs1[i], i3: null });
+          i++;
+        } else {
+          rows.push({ i1: null, i3: idxs3[j] });
+          j++;
+        }
+      }
+
+      while (i < n) {
+        rows.push({ i1: idxs1[i], i3: null });
+        i++;
+      }
+      while (j < m) {
+        rows.push({ i1: null, i3: idxs3[j] });
+        j++;
+      }
+
+      return rows;
+    }
+
+    function compare2(lines1, lines2) {
+      const base = lines2;
+      const a1 = alignOtherToBase(base, lines1);
+      const rows = [];
+      const baseLen = base.length;
+
+      for (let baseIndex = 0; baseIndex <= baseLen; baseIndex++) {
+        const ins1 = a1.insertBefore[baseIndex];
+
+        for (const idx1 of ins1) {
+          const t1 = lines1[idx1];
+          const t2 = '';
+          const isDiff = true;
+          rows.push({
+            n1: idx1 + 1, n2: 0, n3: 0,
+            t1, t2, t3: '',
+            isDiff,
+            isDelta: false, deltaKind: 'none', deltaPresentInV3: true,
+            k1: 'added', k2: 'gap', k3: 'gap',
+            v3StatusClass: '',
+          });
+        }
+
+        if (baseIndex < baseLen) {
+          const idx1 = a1.mapOnBase[baseIndex];
+          const t1 = idx1 === null ? '' : lines1[idx1];
+          const t2 = base[baseIndex];
+          const isDiff = !compareLine(t1, t2);
+          const k1 = idx1 === null ? 'deleted' : (compareLine(t1, t2) ? 'same' : 'modified');
+          const k2 = idx1 === null ? 'added' : (compareLine(t1, t2) ? 'same' : 'modified');
+          const cd = (k1 === 'modified') ? charDiffPair(t1, t2) : null;
+
+          rows.push({
+            n1: idx1 === null ? 0 : idx1 + 1,
+            n2: baseIndex + 1,
+            n3: 0,
+            t1, t2, t3: '',
+            isDiff,
+            isDelta: false, deltaKind: 'none', deltaPresentInV3: true,
+            k1, k2, k3: 'gap',
+            v3StatusClass: '',
+            charSegs1: cd ? cd.segs1 : null,
+            charSegs2: cd ? cd.segs2 : null,
+            charSegs3: null,
+          });
+        }
+      }
+
+      return rows;
+    }
+
+    function compare3(lines1, lines2, lines3) {
+      const base = lines2;
+      const a1 = alignOtherToBase(base, lines1);
+      const a3 = alignOtherToBase(base, lines3);
+
+      const rows = [];
+      const baseLen = base.length;
+
+      for (let baseIndex = 0; baseIndex <= baseLen; baseIndex++) {
+        const ins1 = a1.insertBefore[baseIndex];
+        const ins3 = a3.insertBefore[baseIndex];
+        const alignedInsertRows = alignInsertedBuckets(lines1, ins1, lines3, ins3);
+
+        for (const pair of alignedInsertRows) {
+          const idx1 = pair.i1;
+          const idx3 = pair.i3;
+
+          const t1 = idx1 === null ? '' : lines1[idx1];
+          const t2 = '';
+          const t3 = idx3 === null ? '' : lines3[idx3];
+
+          const isDiff = !(compareLine(t1, t2) && compareLine(t2, t3));
+          const deltaMeta = getDeltaMeta(
+            idx1 === null ? 0 : idx1 + 1,
+            0,
+            idx3 === null ? 0 : idx3 + 1,
+            t1,
+            t2,
+            t3
+          );
+
+          rows.push({
+            n1: idx1 === null ? 0 : idx1 + 1,
+            n2: 0,
+            n3: idx3 === null ? 0 : idx3 + 1,
+            t1, t2, t3,
+            isDiff,
+            isDelta: deltaMeta.isDelta,
+            deltaKind: deltaMeta.deltaKind,
+            deltaPresentInV3: deltaMeta.deltaPresentInV3,
+            k1: idx1 === null ? 'gap' : 'added',
+            k2: deltaMeta.k2,
+            // i1===null and i3!==null means line exists in V3 but not in V1 or V2 => extra in F3
+            k3: idx3 === null ? 'gap' : (idx1 === null ? 'extra-f3' : 'added'),
+            v3StatusClass: deltaMeta.v3StatusClass,
+          });
+        }
+
+        if (baseIndex < baseLen) {
+          const idx1 = a1.mapOnBase[baseIndex];
+          const idx3 = a3.mapOnBase[baseIndex];
+          const t1 = idx1 === null ? '' : lines1[idx1];
+          const t2 = base[baseIndex];
+          const t3 = idx3 === null ? '' : lines3[idx3];
+
+          const isDiff = !(compareLine(t1, t2) && compareLine(t2, t3));
+          const deltaMeta = getDeltaMeta(
+            idx1 === null ? 0 : idx1 + 1,
+            baseIndex + 1,
+            idx3 === null ? 0 : idx3 + 1,
+            t1,
+            t2,
+            t3
+          );
+
+          const k1 = idx1 === null ? 'deleted' : (compareLine(t1, t2) ? 'same' : 'modified');
+          const k3 = idx3 === null ? 'deleted' : (compareLine(t3, t2) ? 'same' : 'modified');
+          const cd12 = (k1 === 'modified') ? charDiffPair(t1, t2) : null;
+          const cd32 = (k3 === 'modified') ? charDiffPair(t2, t3) : null;
+
+          rows.push({
+            n1: idx1 === null ? 0 : idx1 + 1,
+            n2: baseIndex + 1,
+            n3: idx3 === null ? 0 : idx3 + 1,
+            t1, t2, t3,
+            isDiff,
+            isDelta: deltaMeta.isDelta,
+            deltaKind: deltaMeta.deltaKind,
+            deltaPresentInV3: deltaMeta.deltaPresentInV3,
+            k1,
+            k2: deltaMeta.k2,
+            k3,
+            v3StatusClass: deltaMeta.v3StatusClass,
+            charSegs1: cd12 ? cd12.segs1 : null,
+            charSegs2: cd12 ? cd12.segs2 : null,
+            charSegs3: cd32 ? cd32.segs2 : null,
+          });
+        }
+      }
+
+      return rows;
+    }
+
+    function syncScroll(source, targets) {
+      if (syncLock) return;
+      syncLock = true;
+      for (const t of targets) {
+        t.scrollTop = source.scrollTop;
+        t.scrollLeft = source.scrollLeft;
+      }
+      syncLock = false;
+    }
+
+    col1.addEventListener('scroll', () => syncScroll(col1, currentMode === 3 ? [col2, col3] : [col2]));
+    col2.addEventListener('scroll', () => syncScroll(col2, currentMode === 3 ? [col1, col3] : [col1]));
+    col3.addEventListener('scroll', () => syncScroll(col3, [col1, col2]));
+
+    [text1Input, text2Input, text3Input].forEach(input => input.addEventListener('input', markEnabled));
+
+    onlyDiff.addEventListener('change', () => render(cacheRows));
+    onlyDelta.addEventListener('change', () => render(cacheRows));
+    ignoreTrailing.addEventListener('change', () => {
+      if (cacheRows.length > 0) {
+        compareBtn.click();
+      }
+    });
+    stripLineNumbers.addEventListener('change', () => {
+      if (cacheRows.length > 0) {
+        compareBtn.click();
+      }
+    });
+    checkDeltaBtn.addEventListener('click', () => showVerdict());
+
+    function setMode(mode) {
+      currentMode = mode;
+      if (mode === 2) {
+        mode2Btn.classList.add('active');
+        mode3Btn.classList.remove('active');
+        fileBox3.classList.add('hidden');
+        col3.classList.add('hidden');
+        controlsGrid.classList.add('mode-2');
+        gridContainer.classList.add('mode-2');
+        onlyDelta.parentElement.classList.add('hidden');
+        checkDeltaBtn.classList.add('hidden');
+      } else {
+        mode3Btn.classList.add('active');
+        mode2Btn.classList.remove('active');
+        fileBox3.classList.remove('hidden');
+        col3.classList.remove('hidden');
+        controlsGrid.classList.remove('mode-2');
+        gridContainer.classList.remove('mode-2');
+        onlyDelta.parentElement.classList.remove('hidden');
+        checkDeltaBtn.classList.remove('hidden');
+      }
+      // Re-check button states
+      markEnabled();
+      clearVerdict();
+      // Clear existing results
+      cacheRows = [];
+      body1.innerHTML = '';
+      body2.innerHTML = '';
+      body3.innerHTML = '';
+      stats.textContent = '';
+      deltaSummary.textContent = '';
+      warning.textContent = '';
+      document.getElementById('headstats1').innerHTML = '';
+      document.getElementById('headstats2').innerHTML = '';
+      document.getElementById('headstats3').innerHTML = '';
+    }
+
+    mode2Btn.addEventListener('click', () => setMode(2));
+    mode3Btn.addEventListener('click', () => setMode(3));
+
+    clearBtn.addEventListener('click', () => {
+      text1Input.value = '';
+      text2Input.value = '';
+      text3Input.value = '';
+      headname1.textContent = 'Fichier 1';
+      headname2.textContent = 'Fichier 2';
+      headname3.textContent = 'Fichier 3';
+      document.getElementById('headstats1').innerHTML = '';
+      document.getElementById('headstats2').innerHTML = '';
+      document.getElementById('headstats3').innerHTML = '';
+      cacheRows = [];
+      body1.innerHTML = '';
+      body2.innerHTML = '';
+      body3.innerHTML = '';
+      stats.textContent = '';
+      deltaSummary.textContent = '';
+      warning.textContent = '';
+      clearVerdict();
+      markEnabled();
+    });
+
+    function renderColStats(rows) {
+      // V1: no stats (it's the reference)
+      document.getElementById('headstats1').innerHTML = '';
+
+      // V2: show delta vs V1 (what changed)
+      {
+        let mod = 0, add = 0, del = 0;
+        for (const row of rows) {
+          if (row.k2 === 'modified') mod++;
+          else if (row.k2 === 'added') add++;
+          // deleted from V1 = row has k1===deleted but k2===gap; detect via isDelta+deltaKind
+          else if (row.isDelta && row.deltaKind === 'deleted') del++;
+        }
+        const parts = [];
+        if (mod) parts.push(`<span class="hstat hstat-mod">~ ${mod} modifies</span>`);
+        if (add) parts.push(`<span class="hstat hstat-add">+ ${add} ajoutes</span>`);
+        if (del) parts.push(`<span class="hstat hstat-del">- ${del} supprimes</span>`);
+        if (!mod && !add && !del) parts.push(`<span class="hstat hstat-ok">= identique a l'original</span>`);
+        document.getElementById('headstats2').innerHTML = parts.join('');
+      }
+
+      // V3 (only in 3-file mode): show verified vs missing delta, plus extra lines unique to F3
+      if (currentMode === 3) {
+        let verified = 0, missing = 0, extra = 0;
+        for (const row of rows) {
+          if (row.k3 === 'extra-f3') { extra++; continue; }
+          if (!row.isDelta) continue;
+          if (row.deltaPresentInV3) verified++;
+          else missing++;
+        }
+        const total = verified + missing;
+        const parts = [];
+        if (total === 0 && extra === 0) {
+          parts.push(`<span class="hstat hstat-ok">aucun delta a verifier</span>`);
+        } else {
+          if (verified) parts.push(`<span class="hstat hstat-ok">&#10003; ${verified} presents</span>`);
+          if (missing)  parts.push(`<span class="hstat hstat-miss">&#10007; ${missing} absentes</span>`);
+          if (extra)    parts.push(`<span class="hstat" style="background:#eff6ff;color:#0f62fe;border:1px solid #3b82f6;">&#9733; ${extra} lignes en plus dans F3</span>`);
+        }
+        document.getElementById('headstats3').innerHTML = parts.join('');
+      } else {
+        document.getElementById('headstats3').innerHTML = '';
+      }
+    }
+
+    compareBtn.addEventListener('click', async () => {
+      const txt1 = text1Input.value;
+      const txt2 = text2Input.value;
+      const txt3 = text3Input.value;
+
+      if (currentMode === 2) {
+        if (!txt1.trim() || !txt2.trim()) return;
+      } else {
+        if (!txt1.trim() || !txt2.trim() || !txt3.trim()) return;
+      }
+
+      headname1.textContent = (name1Input.value || 'Fichier 1').trim();
+      headname2.textContent = (name2Input.value || 'Fichier 2').trim();
+      if (currentMode === 3) {
+        headname3.textContent = (name3Input.value || 'Fichier 3').trim();
+      }
+
+      const lines1 = normalize(txt1);
+      const lines2 = normalize(txt2);
+
+      try {
+        warning.textContent = '';
+        if (currentMode === 2) {
+          cacheRows = compare2(lines1, lines2);
+        } else {
+          const lines3 = normalize(txt3);
+          cacheRows = compare3(lines1, lines2, lines3);
+        }
+        render(cacheRows);
+        renderColStats(cacheRows);
+        if (currentMode === 3) showVerdict();
+      } catch (err) {
+        cacheRows = [];
+        body1.innerHTML = '';
+        body2.innerHTML = '';
+        body3.innerHTML = '';
+        stats.textContent = '';
+        warning.textContent = err instanceof Error ? err.message : 'La comparaison a echoue.';
+        clearVerdict();
+      }
+    });
+  </script>
+</body>
+</html>

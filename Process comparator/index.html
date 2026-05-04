@@ -1,0 +1,1097 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comparateur de Processus OCR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <style>
+    :root {
+      --bg: #f2f5fb;
+      --ink: #1f2937;
+      --muted: #667085;
+      --card: #ffffff;
+      --line: #d8e0ef;
+      --accent: #0f62fe;
+      --accent-2: #f4f8ff;
+      --ok: #166534;
+      --warn: #9a6700;
+      --bad: #9f1239;
+      --glow: radial-gradient(circle at 20% 0%, #dbeafe 0%, transparent 40%), radial-gradient(circle at 90% 10%, #e0ecff 0%, transparent 30%);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "IBM Plex Sans", "Trebuchet MS", Verdana, sans-serif;
+      background: linear-gradient(180deg,#f4f7fd 0%,#eef3fb 100%);
+    }
+
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 1rem;
+      min-height: calc(100vh - 52px);
+      display: grid;
+      gap: 1rem;
+      align-content: start;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #ffffff 0%, #f4f8ff 100%);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1.1rem;
+      box-shadow: 0 12px 26px rgba(8, 35, 77, 0.08);
+      animation: rise 420ms ease-out;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(1.15rem, 2.8vw, 1.8rem);
+      letter-spacing: 0.02em;
+    }
+
+    .hero p {
+      margin: 0.5rem 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1.2fr 0.8fr;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 1rem;
+      box-shadow: 0 10px 22px rgba(16, 52, 107, 0.07);
+      animation: rise 550ms ease-out;
+      width: 100%;
+    }
+
+    .card h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1.02rem;
+      color: #0f172a;
+    }
+
+    .field {
+      display: grid;
+      gap: 0.35rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .input-split {
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: 1.2fr 0.8fr;
+      align-items: start;
+    }
+
+    .field label {
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .field input[type="file"],
+    .field textarea,
+    .field input[type="text"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fffeff;
+      border-radius: 11px;
+      padding: 0.65rem 0.7rem;
+      font-size: 0.92rem;
+      color: var(--ink);
+      font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    }
+
+    .field textarea {
+      min-height: 132px;
+      resize: vertical;
+    }
+
+    .list-compact {
+      min-height: 88px !important;
+      max-height: 180px;
+    }
+
+    .paste-zone {
+      border: 1px dashed #b9c7e6;
+      border-radius: 12px;
+      background: #f7f9fd;
+      min-height: 124px;
+      padding: 0.75rem;
+      outline: none;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    .paste-zone:focus {
+      border-color: #0f62fe;
+      box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.15);
+    }
+
+    .paste-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.25rem;
+    }
+
+    .paste-help {
+      font-size: 0.8rem;
+      color: #6b7280;
+      line-height: 1.4;
+    }
+
+    .thumbs {
+      margin-top: 0.6rem;
+      display: grid;
+      gap: 0.55rem;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+
+    .thumb {
+      border: 1px solid #e5dcc8;
+      border-radius: 10px;
+      overflow: hidden;
+      background: white;
+      position: relative;
+    }
+
+    .thumb img {
+      display: block;
+      width: 100%;
+      height: 84px;
+      object-fit: cover;
+      background: #f1f5f9;
+    }
+
+    .thumb-name {
+      font-size: 0.72rem;
+      padding: 0.35rem 0.45rem;
+      border-top: 1px solid #e5e7eb;
+      color: #475569;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .thumb-remove {
+      position: absolute;
+      top: 0.3rem;
+      right: 0.3rem;
+      border: 1px solid #ef4444;
+      background: #fee2e2;
+      color: #7f1d1d;
+      border-radius: 999px;
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      font-size: 0.72rem;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+    }
+
+    .btn-danger {
+      border-color: #b91c1c;
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+      color: #fff;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+      margin-top: 0.25rem;
+    }
+
+    button {
+      border: 1px solid #b9c7e6;
+      background: #1f6feb;
+      color: #f8fafc;
+      border-radius: 10px;
+      padding: 0.58rem 0.88rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 140ms ease, filter 140ms ease;
+    }
+
+    button:hover { transform: translateY(-1px); background: #0f62fe; filter: none; }
+    button:disabled { cursor: not-allowed; opacity: 0.55; transform: none; }
+
+    .btn-secondary {
+      border-color: #c7d8f6;
+      background: #f4f8ff;
+      color: #244776;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.55rem;
+      margin-top: 0.8rem;
+    }
+
+    .stat {
+      border: 1px dashed #d8e0ef;
+      background: #f7f9fd;
+      border-radius: 10px;
+      padding: 0.55rem;
+      text-align: center;
+    }
+
+    .stat .value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1e293b;
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    .stat .label {
+      margin-top: 0.15rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .status {
+      margin-top: 0.6rem;
+      padding: 0.58rem 0.65rem;
+      border-radius: 10px;
+      font-size: 0.87rem;
+      border: 1px solid transparent;
+      background: #f8fafc;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+    }
+
+    .status.info { color: #13315d; border-color: #c9d6ee; background: #eff6ff; }
+    .status.ok { color: var(--ok); border-color: #86d39f; background: #e9f9ee; }
+    .status.warn { color: var(--warn); border-color: #f0c78f; background: #fff6e7; }
+    .status.bad { color: var(--bad); border-color: #f2a4b9; background: #feefee; }
+
+    .result-table-wrap {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #ffffff;
+      margin-top: 0.7rem;
+      overflow: hidden;
+    }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .result-table th {
+      border-bottom: 2px solid #e2d9c5;
+      border-right: 1px solid #f1ede3;
+      padding: 0.55rem 0.72rem;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: #f8fafc;
+    }
+
+    .result-table td {
+      border-right: 1px solid #f1ede3;
+      padding: 0.55rem 0.72rem;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .result-table th:last-child,
+    .result-table td:last-child {
+      border-right: none;
+    }
+
+    .col-items {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .col-id {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.76rem;
+      color: #334155;
+      word-break: break-all;
+      padding: 0.2rem 0.4rem;
+      background: #f8f5ef;
+      border-radius: 6px;
+    }
+
+    .status-found {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #0f766e;
+      background: #ccfbf1;
+      border: 1px solid #99f6e4;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    .status-found-ocr {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #a16207;
+      background: #fef9c3;
+      border: 1px solid #fde047;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    .status-missing {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #b91c1c;
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    .badge {
+      padding: 0.12rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      border: 1px solid transparent;
+    }
+
+    .badge.ok { color: #0f766e; background: #ccfbf1; border-color: #99f6e4; }
+    .badge.bad { color: #b91c1c; background: #fee2e2; border-color: #fecaca; }
+
+    .mono {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.77rem;
+      color: #475569;
+    }
+
+    .foot {
+      font-size: 0.77rem;
+      color: #64748b;
+      margin-top: 0.7rem;
+      line-height: 1.45;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(7px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr 1fr 1fr; }
+      .input-split { grid-template-columns: 1fr; }
+      .page { padding: 0.8rem; }
+    }
+
+    @media (max-width: 560px) {
+      .stats { grid-template-columns: 1fr; }
+      .row button { flex: 1 1 100%; }
+      .page { padding: 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;background:linear-gradient(90deg,#0b2545 0%,#163b6c 100%);border-bottom:1px solid #244a7f;color:#e8eefc;position:sticky;top:0;z-index:50">
+    <span style="font-size:15px;font-weight:700;letter-spacing:.2px">Comparateur de Processus</span>
+    <div class="menu-help" style="position:relative;display:flex;align-items:center">
+      <button type="button" style="border:1px solid rgba(232,238,252,.36);background:rgba(255,255,255,.08);color:#e8eefc;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;cursor:help;letter-spacing:.2px;font-family:inherit">Comment ca marche ?</button>
+      <div class="menu-help-popover" style="position:absolute;top:calc(100% + 8px);right:0;width:min(460px,86vw);padding:14px;background:#fff;border:1px solid #c9d6ee;border-radius:10px;box-shadow:0 14px 30px rgba(8,35,77,.24);color:#1f2937;opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .18s ease,transform .18s ease;z-index:60">
+        <h2 style="margin:0 0 8px 0;font-size:14px;color:#0b2545">Guide rapide pour nouveau utilisateur</h2>
+        <p style="margin:0 0 8px 0;color:#4f5f7a;font-size:12px;line-height:1.45">Cet outil verifie si des identifiants de processus sont presents dans des captures d'ecran, meme avec des erreurs OCR.</p>
+        <ol style="margin:0;padding-left:18px;color:#1f2937;font-size:12px;line-height:1.5">
+          <li>Collez vos captures d'ecran dans la zone prevue (Ctrl+V).</li>
+          <li>Entrez la liste des identifiants a verifier (un par ligne).</li>
+          <li>Ajustez le seuil OCR si necessaire (0.85 recommande).</li>
+          <li>Cliquez sur "Lancer la verification" pour lancer l'analyse.</li>
+          <li>Les resultats indiquent si chaque identifiant est trouve, trouve par OCR ou manquant.</li>
+        </ol>
+      </div>
+    </div>
+  </nav>
+    <style>.menu-help:hover .menu-help-popover,.menu-help:focus-within .menu-help-popover{opacity:1!important;transform:translateY(0)!important;pointer-events:auto!important}</style>
+  <main class="page">
+    <section class="hero">
+      <h1>Comparateur de Processus OCR</h1>
+      <p>Collez une ou plusieurs captures avec Ctrl+V, ajoutez votre liste d'identifiants de processus, puis verifiez si chaque capture contient bien les memes identifiants, meme avec des erreurs OCR.</p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>1) Entrees</h2>
+
+        <div class="input-split">
+          <div class="field">
+            <label for="pasteZone">Captures d'ecran (coller avec Ctrl+V)</label>
+            <div id="pasteZone" class="paste-zone" tabindex="0">
+              <div class="paste-title">Collez vos captures ici</div>
+              <div class="paste-help">Cliquez dans cette zone puis appuyez sur Ctrl+V. Vous pouvez coller plusieurs captures a la suite.</div>
+              <div id="thumbs" class="thumbs"></div>
+            </div>
+            <div class="mono" id="pasteInfo">Captures dans le presse-papiers: 0</div>
+            <div class="row">
+              <button id="clearShotsBtn" class="btn-danger" type="button">Effacer les captures</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="listText">Liste des identifiants de processus a verifier (un ID par ligne)</label>
+            <textarea class="list-compact" id="listText" placeholder="Exemple:
+AB123456
+CD987654
+EF456789"></textarea>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="fuzzyThreshold">Seuil de correspondance OCR (0.60 a 1.00)</label>
+          <input id="fuzzyThreshold" type="text" value="0.85" />
+        </div>
+
+        <div class="row">
+          <button id="runBtn" type="button">Lancer la verification</button>
+          <button id="clearBtn" class="btn-secondary" type="button">Effacer</button>
+        </div>
+
+        <div id="status" class="status info">Pret.</div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="value" id="statShots">0</div>
+            <div class="label">Captures</div>
+          </div>
+          <div class="stat">
+            <div class="value" id="statFound">0</div>
+            <div class="label">Trouves</div>
+          </div>
+          <div class="stat">
+            <div class="value" id="statMissing">0</div>
+            <div class="label">Manquants</div>
+          </div>
+        </div>
+
+        <p class="foot">Conseil: la qualite OCR est meilleure quand le texte de la capture est net et assez grand. Cette application utilise Tesseract.js dans le navigateur et necessite internet au premier lancement pour charger le modele OCR.</p>
+      </article>
+
+      <article class="card">
+        <h2>2) Resultats</h2>
+        <div id="results" class="result-table-wrap"></div>
+        <div class="foot mono" id="meta"></div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const pasteZone = document.getElementById("pasteZone");
+    const thumbs = document.getElementById("thumbs");
+    const listTextInput = document.getElementById("listText");
+    const fuzzyThresholdInput = document.getElementById("fuzzyThreshold");
+    const runBtn = document.getElementById("runBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const clearShotsBtn = document.getElementById("clearShotsBtn");
+    const statusBox = document.getElementById("status");
+    const resultsBox = document.getElementById("results");
+    const metaBox = document.getElementById("meta");
+    const pasteInfo = document.getElementById("pasteInfo");
+
+    const statShots = document.getElementById("statShots");
+    const statFound = document.getElementById("statFound");
+    const statMissing = document.getElementById("statMissing");
+    const pastedImages = [];
+    let pasteCounter = 1;
+    const OCR_WHITELIST = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const OCR_CONFUSION_GROUPS = [
+      ["0", "O", "Q", "D"],
+      ["8", "B"],
+      ["1", "I", "L"],
+      ["2", "Z"],
+      ["5", "S"],
+      ["6", "G"]
+    ];
+
+    function setStatus(type, text) {
+      statusBox.className = "status " + type;
+      statusBox.textContent = text;
+    }
+
+    function normalizeProcessId(text) {
+      return String(text || "")
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "")
+        .trim();
+    }
+
+    function parseList(text) {
+      return text
+        .split(/\r?\n/)
+        .map((x) => x.trim())
+        .filter((x) => x.length > 0);
+    }
+
+    function clampThreshold(raw) {
+      const n = Number(raw);
+      if (Number.isNaN(n)) return 0.85;
+      return Math.min(1, Math.max(0.6, n));
+    }
+
+    function levenshtein(a, b) {
+      if (a === b) return 0;
+      if (!a.length) return b.length;
+      if (!b.length) return a.length;
+
+      const prev = new Array(b.length + 1);
+      const curr = new Array(b.length + 1);
+
+      for (let j = 0; j <= b.length; j += 1) prev[j] = j;
+
+      for (let i = 1; i <= a.length; i += 1) {
+        curr[0] = i;
+        for (let j = 1; j <= b.length; j += 1) {
+          const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+          curr[j] = Math.min(
+            prev[j] + 1,
+            curr[j - 1] + 1,
+            prev[j - 1] + cost
+          );
+        }
+        for (let j = 0; j <= b.length; j += 1) prev[j] = curr[j];
+      }
+
+      return prev[b.length];
+    }
+
+    function areConfusableChars(a, b) {
+      if (a === b) return true;
+      for (const group of OCR_CONFUSION_GROUPS) {
+        if (group.includes(a) && group.includes(b)) return true;
+      }
+      return false;
+    }
+
+    function canonicalizeProcessId(candidate, targetId) {
+      const target = normalizeProcessId(targetId);
+      const value = normalizeProcessId(candidate);
+      if (!value) return "";
+
+      const length = Math.min(target.length, value.length);
+      let out = "";
+      for (let i = 0; i < length; i += 1) {
+        const c = value[i];
+        const t = target[i];
+        out += areConfusableChars(c, t) ? t : c;
+      }
+      if (value.length > length) {
+        out += value.slice(length);
+      }
+      return out;
+    }
+
+    function weightedDistance(a, b) {
+      if (a === b) return 0;
+      const prev = new Array(b.length + 1);
+      const curr = new Array(b.length + 1);
+
+      for (let j = 0; j <= b.length; j += 1) prev[j] = j;
+
+      for (let i = 1; i <= a.length; i += 1) {
+        curr[0] = i;
+        for (let j = 1; j <= b.length; j += 1) {
+          let subCost = 1;
+          if (a[i - 1] === b[j - 1]) {
+            subCost = 0;
+          } else if (areConfusableChars(a[i - 1], b[j - 1])) {
+            subCost = 0.25;
+          }
+          curr[j] = Math.min(
+            prev[j] + 1,
+            curr[j - 1] + 1,
+            prev[j - 1] + subCost
+          );
+        }
+        for (let j = 0; j <= b.length; j += 1) prev[j] = curr[j];
+      }
+
+      return prev[b.length];
+    }
+
+    function ambiguitySimilarity(a, b) {
+      if (!a || !b) return 0;
+      const dist = weightedDistance(a, b);
+      return 1 - dist / Math.max(a.length, b.length, 1);
+    }
+
+    function extractOcrCandidates(text, expectedLengths) {
+      const candidates = new Set();
+      const lengths = Array.from(expectedLengths || []).filter((n) => Number.isFinite(n) && n >= 4);
+      const hasLengths = lengths.length > 0;
+
+      // Process line-by-line and rebuild IDs as: 2-char group + code.
+      // This avoids garbage concatenations across unrelated tokens.
+      const lines = String(text || "").toUpperCase().split(/\r?\n/);
+      for (const line of lines) {
+        const tokens = line.match(/[A-Z0-9]+/g) || [];
+        if (!tokens.length) continue;
+
+        for (let i = 0; i < tokens.length; i += 1) {
+          const token = tokens[i];
+
+          // Case A: full ID already contiguous in OCR output.
+          if (!hasLengths || lengths.includes(token.length)) {
+            candidates.add(token);
+          }
+
+          // Case B: prefix is exactly 2 chars.
+          let prefix = "";
+          let start = -1;
+          if (token.length === 2) {
+            prefix = token;
+            start = i + 1;
+          }
+
+          // Case C: prefix OCR-split into two one-char tokens, e.g. "0" "0" "11NA".
+          if (token.length === 1 && i + 1 < tokens.length && tokens[i + 1].length === 1) {
+            prefix = token + tokens[i + 1];
+            start = i + 2;
+          }
+
+          if (!prefix || start < 0 || start >= tokens.length) continue;
+
+          // Build code with at most next 3 tokens on same line.
+          let code = "";
+          for (let j = start; j < Math.min(tokens.length, start + 3); j += 1) {
+            code += tokens[j];
+            const candidate = prefix + code;
+            if (!hasLengths || lengths.includes(candidate.length)) {
+              candidates.add(candidate);
+            }
+          }
+        }
+      }
+
+      return candidates;
+    }
+
+    function matchProcessId(rawItem, ocrCandidates, threshold) {
+      const normalizedId = normalizeProcessId(rawItem);
+      if (!normalizedId) {
+        return { found: false, score: 0, normalizedId, mode: "empty" };
+      }
+
+      // Exact match after OCR normalization/correction.
+      for (const candidate of ocrCandidates) {
+        const correctedCandidate = canonicalizeProcessId(candidate, normalizedId);
+        if (correctedCandidate === normalizedId) {
+          return {
+            found: true,
+            score: 1,
+            normalizedId,
+            mode: "exact",
+            candidate
+          };
+        }
+      }
+
+      let best = 0;
+      let bestCandidate = "";
+      for (const candidate of ocrCandidates) {
+        const lengthGap = Math.abs(candidate.length - normalizedId.length);
+        if (lengthGap > 2) continue;
+
+        const correctedCandidate = canonicalizeProcessId(candidate, normalizedId);
+        const scoreA = ambiguitySimilarity(normalizedId, correctedCandidate);
+        const scoreB = ambiguitySimilarity(normalizedId, candidate);
+        const score = Math.max(scoreA, scoreB);
+        if (score > best) {
+          best = score;
+          bestCandidate = correctedCandidate || candidate;
+        }
+      }
+
+      return {
+        found: best >= threshold,
+        score: best,
+        normalizedId,
+        mode: best >= threshold ? "fallback" : "missing",
+        candidate: bestCandidate
+      };
+    }
+
+    async function loadImageElement(file) {
+      return new Promise((resolve, reject) => {
+        const imageUrl = URL.createObjectURL(file);
+        const image = new Image();
+        image.onload = () => {
+          URL.revokeObjectURL(imageUrl);
+          resolve(image);
+        };
+        image.onerror = () => {
+          URL.revokeObjectURL(imageUrl);
+          reject(new Error("Impossible de charger la capture: " + file.name));
+        };
+        image.src = imageUrl;
+      });
+    }
+
+    function createScaledCanvas(image, scale) {
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.width * scale));
+      canvas.height = Math.max(1, Math.round(image.height * scale));
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      return canvas;
+    }
+
+    function createHighContrastCanvas(image, scale, invert = false) {
+      const canvas = createScaledCanvas(image, scale);
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+
+      let sum = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+        sum += gray;
+      }
+
+      const threshold = Math.max(90, Math.min(190, Math.round(sum / (data.length / 4))));
+
+      for (let i = 0; i < data.length; i += 4) {
+        const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+        let value = gray >= threshold ? 255 : 0;
+        if (invert) value = 255 - value;
+        data[i] = value;
+        data[i + 1] = value;
+        data[i + 2] = value;
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+      return canvas;
+    }
+
+    async function createOcrVariants(file) {
+      const image = await loadImageElement(file);
+      return [
+        { label: "original", source: createScaledCanvas(image, 2.5), psm: 6 },
+        { label: "contraste", source: createHighContrastCanvas(image, 3, false), psm: 6 },
+        { label: "eparse", source: createHighContrastCanvas(image, 3, true), psm: 11 }
+      ];
+    }
+
+    async function recognizeVariant(source, label, index, total, passNumber, passTotal, psm) {
+      const result = await Tesseract.recognize(source, "eng", {
+        logger: (m) => {
+          if (m && m.status === "recognizing text" && typeof m.progress === "number") {
+            const p = Math.round(m.progress * 100);
+            statusBox.textContent =
+              "OCR " + index + "/" + total +
+              " | passe " + passNumber + "/" + passTotal +
+              " | " + label +
+              " (" + p + "%)";
+          }
+        },
+        tessedit_pageseg_mode: String(psm),
+        tessedit_char_whitelist: OCR_WHITELIST,
+        preserve_interword_spaces: "1",
+        user_defined_dpi: "300"
+      });
+
+      return String(result.data.text || "");
+    }
+
+    function updatePasteInfo() {
+      pasteInfo.textContent = "Captures dans le presse-papiers: " + pastedImages.length;
+    }
+
+    function renderPastedImages() {
+      thumbs.innerHTML = "";
+      if (pastedImages.length === 0) {
+        return;
+      }
+
+      for (const item of pastedImages) {
+        const card = document.createElement("div");
+        card.className = "thumb";
+
+        const img = document.createElement("img");
+        img.src = item.previewUrl;
+        img.alt = item.file.name;
+
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.className = "thumb-remove";
+        removeBtn.textContent = "x";
+        removeBtn.title = "Supprimer la capture";
+        removeBtn.addEventListener("click", () => {
+          URL.revokeObjectURL(item.previewUrl);
+          const index = pastedImages.indexOf(item);
+          if (index >= 0) {
+            pastedImages.splice(index, 1);
+          }
+          renderPastedImages();
+          updatePasteInfo();
+          statShots.textContent = String(pastedImages.length);
+          setStatus("info", "Une capture a ete supprimee.");
+        });
+
+        const name = document.createElement("div");
+        name.className = "thumb-name";
+        name.textContent = item.file.name;
+
+        card.appendChild(img);
+        card.appendChild(removeBtn);
+        card.appendChild(name);
+        thumbs.appendChild(card);
+      }
+    }
+
+    function clearScreenshots() {
+      for (const item of pastedImages) {
+        URL.revokeObjectURL(item.previewUrl);
+      }
+      pastedImages.length = 0;
+      pasteCounter = 1;
+      renderPastedImages();
+      updatePasteInfo();
+      statShots.textContent = "0";
+      setStatus("info", "Toutes les captures ont ete effacees.");
+    }
+
+    function collectClipboardImages(event) {
+      const dt = event.clipboardData;
+      if (!dt || !dt.items || dt.items.length === 0) return 0;
+
+      let added = 0;
+      for (const item of dt.items) {
+        if (!item.type || !item.type.startsWith("image/")) continue;
+        const blob = item.getAsFile();
+        if (!blob) continue;
+
+        const ext = (item.type.split("/")[1] || "png").toLowerCase();
+        const file = new File([blob], "pasted-" + pasteCounter + "." + ext, { type: item.type });
+        const previewUrl = URL.createObjectURL(file);
+        pastedImages.push({ file, previewUrl });
+        pasteCounter += 1;
+        added += 1;
+      }
+
+      if (added > 0) {
+        renderPastedImages();
+        updatePasteInfo();
+        setStatus(
+          "info",
+          "Ajout de " +
+            added +
+            " capture(s) depuis le presse-papiers. Total actuel: " +
+            pastedImages.length +
+            "."
+        );
+      }
+
+      return added;
+    }
+
+    async function ocrOne(file, index, total) {
+      setStatus("info", "Preparation OCR pour la capture " + index + "/" + total + " : " + file.name);
+      const variants = await createOcrVariants(file);
+      const outputs = [];
+
+      for (let i = 0; i < variants.length; i += 1) {
+        const variant = variants[i];
+        const text = await recognizeVariant(
+          variant.source,
+          variant.label,
+          index,
+          total,
+          i + 1,
+          variants.length,
+          variant.psm
+        );
+        outputs.push(text);
+      }
+
+      return outputs.join("\n");
+    }
+
+    function renderResults(rows, ocrCandidates, minIdLen, maxIdLen) {
+      if (!rows.length) {
+        resultsBox.innerHTML = '<p style="padding:0.8rem;color:#6b7280;font-size:0.85rem;">Aucune donnee.</p>';
+        return;
+      }
+
+      // Merged column: for each given ID show the raw OCR candidate that matched it,
+      // aligned row-by-row with the given list. "-" when nothing was found.
+      const mergedCells = rows.map((row) => {
+        const display = row.candidate || row.normalizedId || row.item;
+        return '<div class="col-id">' + display + '</div>';
+      }).join('');
+
+      const givenCells = rows.map((row) =>
+        '<div class="col-id">' + row.item + '</div>'
+      ).join('');
+
+      const statusCells = rows.map((row) => {
+        if (row.found && row.mode === 'exact') {
+          return '<div><span class="status-found">TROUVE</span></div>';
+        }
+        if (row.found) {
+          return '<div><span class="status-found-ocr">TROUVE OCR</span></div>';
+        }
+        return '<div><span class="status-missing">MANQUANT</span></div>';
+      }).join('');
+
+      resultsBox.innerHTML =
+        '<table class="result-table">' +
+          '<thead><tr>' +
+            '<th>Liste fusionnee depuis les captures</th>' +
+            '<th>Liste fournie</th>' +
+            '<th>Statut</th>' +
+          '</tr></thead>' +
+          '<tbody><tr>' +
+            '<td><div class="col-items">' + mergedCells + '</div></td>' +
+            '<td><div class="col-items">' + givenCells + '</div></td>' +
+            '<td><div class="col-items">' + statusCells + '</div></td>' +
+          '</tr></tbody>' +
+        '</table>';
+    }
+
+    async function runCheck() {
+      try {
+        const files = pastedImages.map((x) => x.file);
+        if (!files.length) {
+          setStatus("warn", "Veuillez coller au moins 1 capture (Ctrl+V).");
+          return;
+        }
+
+        const listText = listTextInput.value;
+        const items = parseList(listText);
+        if (!items.length) {
+          setStatus("warn", "Veuillez saisir au moins 1 identifiant de processus.");
+          return;
+        }
+
+        const threshold = clampThreshold(fuzzyThresholdInput.value);
+        runBtn.disabled = true;
+        clearBtn.disabled = true;
+
+        statShots.textContent = String(files.length);
+        statFound.textContent = "0";
+        statMissing.textContent = "0";
+        renderResults([]);
+
+        let fullOcrText = "";
+        for (let i = 0; i < files.length; i += 1) {
+          const text = await ocrOne(files[i], i + 1, files.length);
+          fullOcrText += "\n" + text;
+        }
+
+        const idLengths = items.map((x) => normalizeProcessId(x).length).filter((n) => n > 0);
+        const expectedLengths = new Set(idLengths);
+        const minIdLen = idLengths.length ? Math.min(...idLengths) : 4;
+        const maxIdLen = idLengths.length ? Math.max(...idLengths) : 24;
+        const ocrCandidates = extractOcrCandidates(fullOcrText, expectedLengths);
+        const rows = [];
+        let foundCount = 0;
+
+        for (const item of items) {
+          const match = matchProcessId(item, ocrCandidates, threshold);
+          if (!match.normalizedId) continue;
+          if (match.found) foundCount += 1;
+          rows.push({ item, found: match.found, score: match.score, mode: match.mode, normalizedId: match.normalizedId, candidate: match.candidate });
+        }
+
+        const missingCount = rows.length - foundCount;
+
+        statFound.textContent = String(foundCount);
+        statMissing.textContent = String(missingCount);
+        renderResults(rows, ocrCandidates, minIdLen, maxIdLen);
+
+        metaBox.textContent =
+          "Seuil=" + threshold.toFixed(2) +
+          " | Candidats OCR=" + ocrCandidates.size +
+          " | Elements=" + rows.length;
+
+        if (missingCount === 0) {
+          setStatus("ok", "Parfait: tous les identifiants sont presents dans les captures.");
+        } else if (foundCount === 0) {
+          setStatus("bad", "Aucun identifiant n'a correspondu. Cela signifie souvent que l'OCR a mal lu les IDs; essayez des captures plus nettes.");
+        } else {
+          setStatus("warn", "Resultat partiel: " + foundCount + " ID trouves, " + missingCount + " manquants.");
+        }
+      } catch (err) {
+        setStatus("bad", "Erreur: " + (err && err.message ? err.message : String(err)));
+      } finally {
+        runBtn.disabled = false;
+        clearBtn.disabled = false;
+      }
+    }
+
+    function clearAll() {
+      listTextInput.value = "";
+      for (const item of pastedImages) {
+        URL.revokeObjectURL(item.previewUrl);
+      }
+      pastedImages.length = 0;
+      pasteCounter = 1;
+      renderPastedImages();
+      updatePasteInfo();
+      fuzzyThresholdInput.value = "0.85";
+      statShots.textContent = "0";
+      statFound.textContent = "0";
+      statMissing.textContent = "0";
+      metaBox.textContent = "";
+      renderResults([], new Set());
+      setStatus("info", "Efface. Pret.");
+    }
+
+    pasteZone.addEventListener("paste", (event) => {
+      const added = collectClipboardImages(event);
+      if (added > 0) {
+        event.preventDefault();
+      }
+    });
+
+    runBtn.addEventListener("click", runCheck);
+    clearBtn.addEventListener("click", clearAll);
+    clearShotsBtn.addEventListener("click", clearScreenshots);
+
+    renderResults([], new Set());
+    renderPastedImages();
+    updatePasteInfo();
+    setStatus("info", "Pret.");
+  </script>
+</body>
+</html>

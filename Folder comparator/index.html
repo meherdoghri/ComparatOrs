@@ -1,0 +1,1162 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comparateur de Dossiers</title>
+  <style>
+    :root {
+      --bg: #f2f5fb;
+      --panel: #ffffff;
+      --panel2: #f7f9fd;
+      --border: #d8e0ef;
+      --text: #1f2937;
+      --muted: #667085;
+      --accent: #0f62fe;
+      --ok: #166534;
+      --warn: #9a6700;
+      --bad: #9f1239;
+      --menu: #0b2545;
+      --menuText: #e8eefc;
+      --addbg: #e9f9ee;
+      --addfg: #166534;
+      --delbg: #feefee;
+      --delfg: #9f1239;
+      --eq: #5f6b7a;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; margin: 0; }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(180deg, #f4f7fd 0%, #eef3fb 100%);
+      color: var(--text);
+      font: 13px/1.4 "IBM Plex Sans", "Trebuchet MS", Verdana, sans-serif;
+    }
+
+    .app-menu {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 16px;
+      background: linear-gradient(90deg, #0b2545 0%, #163b6c 100%);
+      color: var(--menuText);
+      border-bottom: 1px solid #244a7f;
+    }
+
+    .menu-brand {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      box-shadow: 0 2px 8px rgba(8, 35, 77, 0.06);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 16px;
+      color: #0b2545;
+      font-weight: 700;
+    }
+
+    button, input, select { font: inherit; }
+
+    button {
+      border: 1px solid #b9c7e6;
+      background: #1f6feb;
+      color: #fff;
+      border-radius: 8px;
+      padding: 7px 11px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover { background: #0f62fe; }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-ghost {
+      background: #f4f8ff;
+      color: #244776;
+      border: 1px solid #c7d8f6;
+    }
+
+    .btn-ghost:hover {
+      background: #eaf2ff;
+      color: #17335b;
+      border-color: #aac5f2;
+    }
+
+    .badge {
+      background: #e8f0ff;
+      color: #0f62fe;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      max-width: 240px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .filter-panel {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: min(980px, 100%);
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d6e3f7;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #f8fbff 0%, #f1f6ff 100%);
+      flex-wrap: wrap;
+    }
+
+    .filter-panel input[type="text"] {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid #c9d6ee;
+      border-radius: 8px;
+      padding: 7px 9px;
+      width: 260px;
+      max-width: 52vw;
+    }
+
+    .filter-panel select {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid #c9d6ee;
+      border-radius: 8px;
+      padding: 7px 9px;
+    }
+
+    #status {
+      color: #4f5f7a;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    main {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      padding: 10px;
+      gap: 10px;
+    }
+
+    #sidebar {
+      width: 350px;
+      min-width: 250px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      box-shadow: 0 2px 10px rgba(16, 52, 107, 0.06);
+    }
+
+    #sidebar-meta {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: #4c5a74;
+      font-weight: 600;
+      background: var(--panel2);
+    }
+
+    #file-list {
+      overflow: auto;
+      flex: 1;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 11px;
+      border-bottom: 1px solid #edf1f8;
+      cursor: default;
+    }
+
+    .file-item.clickable { cursor: pointer; }
+    .file-item.clickable:hover { background: #f4f8ff; }
+    .file-item.active { background: #eaf2ff; }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+    }
+
+    .dot.changed { background: #d97b00; }
+    .dot.same { background: #2f9e44; }
+    .dot.onlya { background: #2563eb; }
+    .dot.onlyb { background: #c026d3; }
+
+    .fname {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: "Courier New", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .status-pill {
+      font-size: 11px;
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .status-changed {
+      color: var(--warn);
+      border-color: #f0c78f;
+      background: #fff6e7;
+    }
+
+    .status-ok {
+      color: var(--ok);
+      border-color: #86d39f;
+      background: var(--addbg);
+    }
+
+    .status-onlya {
+      color: #1d4ed8;
+      border-color: #93c5fd;
+      background: #eff6ff;
+    }
+
+    .status-onlyb {
+      color: #9d174d;
+      border-color: #f9a8d4;
+      background: #fdf2f8;
+    }
+
+    #content {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel);
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(16, 52, 107, 0.06);
+    }
+
+    #summary {
+      display: flex;
+      gap: 16px;
+      padding: 10px 12px;
+      background: #f7f9fd;
+      border-bottom: 1px solid var(--border);
+      color: #4c5a74;
+      flex-wrap: wrap;
+    }
+
+    .summary-pill {
+      font-weight: 700;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: #fff;
+    }
+
+    #compare-navbar {
+      display: flex;
+      gap: 0;
+      align-items: center;
+      padding: 0;
+      background: #f9fbff;
+      border-bottom: 2px solid var(--accent);
+      color: var(--text);
+      flex-wrap: wrap;
+    }
+
+    .nav-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      border-right: 1px solid #e3eaf6;
+    }
+
+    .nav-group:last-child {
+      border-right: none;
+      flex: 1;
+    }
+
+    .nav-btn {
+      background: #fff;
+      color: #13315d;
+      padding: 7px 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      font-size: 13px;
+      border: 1px solid #cbd9f0;
+      min-width: 0;
+      white-space: nowrap;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .nav-counter {
+      padding: 6px 14px;
+      background: #eaf2ff;
+      border: 1px solid #a8c5ff;
+      border-radius: 6px;
+      color: #0f62fe;
+      font-weight: 700;
+      font-size: 13px;
+      white-space: nowrap;
+      min-width: 88px;
+      text-align: center;
+    }
+
+    .row-focused td {
+      outline: 2px solid var(--accent) !important;
+      outline-offset: -2px;
+    }
+
+    #legend {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      background: #f9fbff;
+      border-bottom: 1px solid var(--border);
+      color: #4f5f7a;
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+
+    #welcome {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      color: #60708a;
+      padding: 24px;
+      text-align: center;
+    }
+
+    #diff-wrap {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font: 12px/1.5 "Courier New", Consolas, monospace;
+    }
+
+    th, td {
+      border-bottom: 1px solid #edf1f8;
+      padding: 5px 8px;
+      vertical-align: top;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #f7f9fd;
+      color: #4f5f7a;
+      text-align: left;
+      z-index: 1;
+    }
+
+    .ln {
+      width: 60px;
+      color: #6b7280;
+      text-align: right;
+      border-right: 2px solid #e4ebf7;
+      padding-right: 8px;
+    }
+
+    .code { width: calc(50% - 60px); }
+
+    .row-add .right { background: var(--delbg); color: var(--delfg); }
+    .row-del .left { background: var(--addbg); color: var(--addfg); }
+    .row-eq .left, .row-eq .right { color: var(--eq); }
+
+    @media (max-width: 980px) {
+      main { flex-direction: column; }
+      #sidebar { width: 100%; max-height: 38vh; }
+      #content { min-height: 45vh; }
+      .filter-panel input[type="text"] { width: 100%; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-menu">
+    <div class="menu-brand">Comparateur de Dossiers Pro</div>
+    <div>Style Program Comparator</div>
+  </div>
+
+  <header>
+    <h1>Comparateur de Dossiers</h1>
+
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button id="pickA">Ouvrir dossier A</button>
+      <button id="fallbackA" class="btn-ghost">Choix alternatif A</button>
+      <button id="clearA" class="btn-ghost">Vider A</button>
+      <span id="metaA" class="badge">A: non charge</span>
+      <input id="inputA" type="file" webkitdirectory directory multiple hidden />
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button id="pickB">Ouvrir dossier B</button>
+      <button id="fallbackB" class="btn-ghost">Choix alternatif B</button>
+      <button id="clearB" class="btn-ghost">Vider B</button>
+      <span id="metaB" class="badge">B: non charge</span>
+      <input id="inputB" type="file" webkitdirectory directory multiple hidden />
+    </div>
+
+    <button id="compareBtn">Comparer</button>
+    <button id="resetBtn" class="btn-ghost">Reinitialiser</button>
+
+    <div class="filter-panel">
+      <input id="search" type="text" placeholder="Rechercher un chemin de fichier..." />
+      <select id="viewMode">
+        <option value="all">Tout afficher</option>
+        <option value="changed">Modifies seulement</option>
+        <option value="same">Identiques seulement</option>
+        <option value="onlyA">Seulement dans A</option>
+        <option value="onlyB">Seulement dans B</option>
+      </select>
+      <span id="status"></span>
+    </div>
+  </header>
+
+  <main>
+    <aside id="sidebar">
+      <div id="sidebar-meta">Aucun resultat pour le moment</div>
+      <div id="file-list"></div>
+    </aside>
+
+    <section id="content">
+      <div id="summary">
+        <span class="summary-pill">Seulement A: <strong id="countOnlyA">0</strong></span>
+        <span class="summary-pill">Seulement B: <strong id="countOnlyB">0</strong></span>
+        <span class="summary-pill">Modifies: <strong id="countChanged">0</strong></span>
+        <span class="summary-pill">Identiques: <strong id="countSame">0</strong></span>
+      </div>
+
+      <div id="compare-navbar">
+        <div class="nav-group">
+          <button id="file-first" class="nav-btn" type="button" title="Premier fichier modifie">⏮ Fichier</button>
+          <button id="file-prev" class="nav-btn" type="button" title="Fichier modifie precedent">◀ Prec</button>
+          <span id="file-counter" class="nav-counter">0 / 0</span>
+          <button id="file-next" class="nav-btn" type="button" title="Fichier modifie suivant">Suiv ▶</button>
+          <button id="file-last" class="nav-btn" type="button" title="Dernier fichier modifie">Fichier ⏭</button>
+        </div>
+        <div class="nav-group">
+          <button id="diff-first" class="nav-btn" type="button" title="Premier bloc de difference">⏮ Diff</button>
+          <button id="diff-prev" class="nav-btn" type="button" title="Bloc precedent">◀ Diff</button>
+          <span id="diff-counter" class="nav-counter">0 / 0</span>
+          <button id="diff-next" class="nav-btn" type="button" title="Bloc suivant">Diff ▶</button>
+          <button id="diff-last" class="nav-btn" type="button" title="Dernier bloc de difference">Diff ⏭</button>
+        </div>
+      </div>
+
+      <div id="legend">
+        <span>Vert gauche: ligne seulement dans A</span>
+        <span>Rouge droite: ligne seulement dans B</span>
+        <span>Gris: lignes identiques</span>
+      </div>
+
+      <div id="welcome">Chargez les dossiers A et B, cliquez sur Comparer, puis selectionnez un fichier modifie dans le panneau gauche.</div>
+
+      <div id="diff-wrap">
+        <table>
+          <colgroup>
+            <col class="ln" />
+            <col class="code" />
+            <col class="ln" />
+            <col class="code" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="ln">#</th>
+              <th id="headLeft">Dossier A</th>
+              <th class="ln">#</th>
+              <th id="headRight">Dossier B</th>
+            </tr>
+          </thead>
+          <tbody id="diffBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      folderAName: "",
+      folderBName: "",
+      mapA: new Map(),
+      mapB: new Map(),
+      results: null,
+      activeChangedPath: "",
+      search: "",
+      viewMode: "all",
+      diffBlocks: [],
+      currentDiffIdx: -1
+    };
+
+    const els = {
+      pickA: document.getElementById("pickA"),
+      pickB: document.getElementById("pickB"),
+      fallbackA: document.getElementById("fallbackA"),
+      fallbackB: document.getElementById("fallbackB"),
+      inputA: document.getElementById("inputA"),
+      inputB: document.getElementById("inputB"),
+      clearA: document.getElementById("clearA"),
+      clearB: document.getElementById("clearB"),
+      compareBtn: document.getElementById("compareBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      metaA: document.getElementById("metaA"),
+      metaB: document.getElementById("metaB"),
+      search: document.getElementById("search"),
+      viewMode: document.getElementById("viewMode"),
+      status: document.getElementById("status"),
+      sidebarMeta: document.getElementById("sidebar-meta"),
+      fileList: document.getElementById("file-list"),
+      countOnlyA: document.getElementById("countOnlyA"),
+      countOnlyB: document.getElementById("countOnlyB"),
+      countChanged: document.getElementById("countChanged"),
+      countSame: document.getElementById("countSame"),
+      fileFirst: document.getElementById("file-first"),
+      filePrev: document.getElementById("file-prev"),
+      fileNext: document.getElementById("file-next"),
+      fileLast: document.getElementById("file-last"),
+      fileCounter: document.getElementById("file-counter"),
+      diffFirst: document.getElementById("diff-first"),
+      diffPrev: document.getElementById("diff-prev"),
+      diffNext: document.getElementById("diff-next"),
+      diffLast: document.getElementById("diff-last"),
+      diffCounter: document.getElementById("diff-counter"),
+      welcome: document.getElementById("welcome"),
+      diffWrap: document.getElementById("diff-wrap"),
+      diffBody: document.getElementById("diffBody"),
+      headLeft: document.getElementById("headLeft"),
+      headRight: document.getElementById("headRight")
+    };
+
+    function setStatus(msg) {
+      els.status.textContent = msg;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;");
+    }
+
+    function cleanRelativePath(p) {
+      return String(p || "").replace(/\\/g, "/").replace(/^\/+/, "");
+    }
+
+    async function fileToEntry(file) {
+      return {
+        size: file.size,
+        getBytes: () => file.arrayBuffer(),
+        getText: async () => decodeText(await file.arrayBuffer())
+      };
+    }
+
+    async function mapFromInputFiles(fileList) {
+      const files = Array.from(fileList || []);
+      const map = new Map();
+      if (!files.length) return { map, folderName: "" };
+
+      let folderName = "";
+      for (const file of files) {
+        const full = cleanRelativePath(file.webkitRelativePath || file.name);
+        const parts = full.split("/").filter(Boolean);
+        if (!parts.length) continue;
+        if (!folderName) folderName = parts[0];
+        const rel = parts.slice(1).join("/") || parts[0];
+        map.set(rel, await fileToEntry(file));
+      }
+      return { map, folderName };
+    }
+
+    async function mapFromDirectoryHandle(rootHandle) {
+      const map = new Map();
+      async function walk(dirHandle, prefix) {
+        for await (const entry of dirHandle.values()) {
+          if (entry.kind === "directory") {
+            await walk(entry, prefix ? `${prefix}/${entry.name}` : entry.name);
+          } else if (entry.kind === "file") {
+            const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+            const file = await entry.getFile();
+            map.set(cleanRelativePath(rel), await fileToEntry(file));
+          }
+        }
+      }
+      await walk(rootHandle, "");
+      return { map, folderName: rootHandle.name || "" };
+    }
+
+    function bytesEqual(bufA, bufB) {
+      if (!bufA || !bufB || bufA.byteLength !== bufB.byteLength) return false;
+      const a = new Uint8Array(bufA);
+      const b = new Uint8Array(bufB);
+      for (let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) return false;
+      }
+      return true;
+    }
+
+    function decodeText(arrayBuffer) {
+      const bytes = new Uint8Array(arrayBuffer);
+      let nullCount = 0;
+      for (let i = 0; i < Math.min(bytes.length, 8000); i++) {
+        if (bytes[i] === 0) nullCount++;
+      }
+      if (nullCount > 0) {
+        return { text: "", isBinary: true, encoding: "binary" };
+      }
+
+      let text = "";
+      let encoding = "utf-8";
+      try {
+        text = new TextDecoder("utf-8", { fatal: true }).decode(arrayBuffer);
+      } catch (_) {
+        try {
+          text = new TextDecoder("windows-1252").decode(arrayBuffer);
+          encoding = "windows-1252";
+        } catch (_) {
+          text = new TextDecoder().decode(arrayBuffer);
+        }
+      }
+      return { text, isBinary: false, encoding };
+    }
+
+    function parseLines(text) {
+      return text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+    }
+
+    function buildLcsDiff(aLines, bLines) {
+      const n = aLines.length;
+      const m = bLines.length;
+
+      if (n * m > 320000) {
+        const rows = [];
+        let aNo = 1;
+        let bNo = 1;
+        const max = Math.max(n, m);
+        for (let i = 0; i < max; i++) {
+          const left = i < n ? aLines[i] : null;
+          const right = i < m ? bLines[i] : null;
+          if (left === right) {
+            rows.push({ type: "row-eq", aNo: left !== null ? aNo++ : "", aText: left || "", bNo: right !== null ? bNo++ : "", bText: right || "" });
+          } else {
+            if (left !== null) rows.push({ type: "row-del", aNo: aNo++, aText: left, bNo: "", bText: "" });
+            if (right !== null) rows.push({ type: "row-add", aNo: "", aText: "", bNo: bNo++, bText: right });
+          }
+        }
+        return { rows, simplified: true };
+      }
+
+      const cols = m + 1;
+      const dp = new Uint32Array((n + 1) * (m + 1));
+      const idx = (i, j) => i * cols + j;
+
+      for (let i = 1; i <= n; i++) {
+        for (let j = 1; j <= m; j++) {
+          if (aLines[i - 1] === bLines[j - 1]) {
+            dp[idx(i, j)] = dp[idx(i - 1, j - 1)] + 1;
+          } else {
+            const up = dp[idx(i - 1, j)];
+            const left = dp[idx(i, j - 1)];
+            dp[idx(i, j)] = up >= left ? up : left;
+          }
+        }
+      }
+
+      const rev = [];
+      let i = n;
+      let j = m;
+      while (i > 0 && j > 0) {
+        if (aLines[i - 1] === bLines[j - 1]) {
+          rev.push({ op: "eq", text: aLines[i - 1] });
+          i--;
+          j--;
+        } else if (dp[idx(i - 1, j)] >= dp[idx(i, j - 1)]) {
+          rev.push({ op: "del", text: aLines[i - 1] });
+          i--;
+        } else {
+          rev.push({ op: "add", text: bLines[j - 1] });
+          j--;
+        }
+      }
+      while (i > 0) {
+        rev.push({ op: "del", text: aLines[i - 1] });
+        i--;
+      }
+      while (j > 0) {
+        rev.push({ op: "add", text: bLines[j - 1] });
+        j--;
+      }
+
+      rev.reverse();
+
+      const rows = [];
+      let aNo = 1;
+      let bNo = 1;
+      for (const item of rev) {
+        if (item.op === "eq") {
+          rows.push({ type: "row-eq", aNo, aText: item.text, bNo, bText: item.text });
+          aNo++;
+          bNo++;
+        } else if (item.op === "del") {
+          rows.push({ type: "row-del", aNo, aText: item.text, bNo: "", bText: "" });
+          aNo++;
+        } else {
+          rows.push({ type: "row-add", aNo: "", aText: "", bNo, bText: item.text });
+          bNo++;
+        }
+      }
+      return { rows, simplified: false };
+    }
+
+    async function compareFolders() {
+      if (!state.mapA.size || !state.mapB.size) {
+        setStatus("Chargez d'abord les deux dossiers.");
+        return;
+      }
+
+      setStatus("Comparaison des fichiers...");
+      const keysA = Array.from(state.mapA.keys()).sort();
+      const keysB = Array.from(state.mapB.keys()).sort();
+      const setA = new Set(keysA);
+      const setB = new Set(keysB);
+
+      const onlyA = keysA.filter((k) => !setB.has(k));
+      const onlyB = keysB.filter((k) => !setA.has(k));
+      const common = keysA.filter((k) => setB.has(k));
+
+      const changed = [];
+      const same = [];
+
+      for (const rel of common) {
+        const a = state.mapA.get(rel);
+        const b = state.mapB.get(rel);
+        if (!a || !b) continue;
+
+        if (a.size !== b.size) {
+          changed.push(rel);
+          continue;
+        }
+
+        const [abuf, bbuf] = await Promise.all([a.getBytes(), b.getBytes()]);
+        if (bytesEqual(abuf, bbuf)) same.push(rel);
+        else changed.push(rel);
+      }
+
+      state.results = { onlyA, onlyB, changed, same };
+      state.activeChangedPath = "";
+      renderSummary();
+      renderSidebar();
+      clearDiff();
+      setStatus(`Termine. ${common.length} fichiers communs analyses.`);
+    }
+
+    function renderSummary() {
+      const r = state.results || { onlyA: [], onlyB: [], changed: [], same: [] };
+      els.countOnlyA.textContent = String(r.onlyA.length);
+      els.countOnlyB.textContent = String(r.onlyB.length);
+      els.countChanged.textContent = String(r.changed.length);
+      els.countSame.textContent = String(r.same.length);
+      els.sidebarMeta.textContent = `Modifies: ${r.changed.length} | Identiques: ${r.same.length} | Seulement A: ${r.onlyA.length} | Seulement B: ${r.onlyB.length}`;
+    }
+
+    function sidebarRows() {
+      const r = state.results || { onlyA: [], onlyB: [], changed: [], same: [] };
+      const rows = [];
+
+      for (const path of r.changed) rows.push({ path, kind: "changed", clickable: true });
+      for (const path of r.same) rows.push({ path, kind: "same", clickable: false });
+      for (const path of r.onlyA) rows.push({ path, kind: "onlyA", clickable: false });
+      for (const path of r.onlyB) rows.push({ path, kind: "onlyB", clickable: false });
+
+      const q = state.search.trim().toLowerCase();
+      let filtered = rows;
+      if (q) filtered = filtered.filter((x) => x.path.toLowerCase().includes(q));
+      if (state.viewMode !== "all") filtered = filtered.filter((x) => x.kind === state.viewMode);
+
+      return filtered;
+    }
+
+    function getVisibleChangedPaths() {
+      return sidebarRows().filter((row) => row.kind === "changed").map((row) => row.path);
+    }
+
+    function updateFileNav() {
+      const changed = getVisibleChangedPaths();
+      const idx = changed.indexOf(state.activeChangedPath);
+
+      els.fileCounter.textContent = changed.length === 0
+        ? "0 / 0"
+        : (idx >= 0 ? `${idx + 1} / ${changed.length}` : `- / ${changed.length}`);
+
+      els.fileFirst.disabled = changed.length === 0 || idx <= 0;
+      els.filePrev.disabled = changed.length === 0 || idx <= 0;
+      els.fileNext.disabled = changed.length === 0 || idx === -1 || idx >= changed.length - 1;
+      els.fileLast.disabled = changed.length === 0 || idx === -1 || idx >= changed.length - 1;
+    }
+
+    function updateDiffNav() {
+      const n = state.diffBlocks.length;
+      const idx = state.currentDiffIdx;
+
+      els.diffCounter.textContent = n === 0 ? "0 / 0" : (idx >= 0 ? `${idx + 1} / ${n}` : `- / ${n}`);
+      els.diffFirst.disabled = n === 0 || idx <= 0;
+      els.diffPrev.disabled = n === 0 || idx <= 0;
+      els.diffNext.disabled = n === 0 || idx === -1 || idx >= n - 1;
+      els.diffLast.disabled = n === 0 || idx === -1 || idx >= n - 1;
+    }
+
+    async function selectChangedPath(path) {
+      state.activeChangedPath = path;
+      renderSidebar();
+      await showDiffForPath(path);
+    }
+
+    async function jumpChanged(index) {
+      const changed = getVisibleChangedPaths();
+      if (!changed.length) return;
+      const clamped = Math.max(0, Math.min(changed.length - 1, index));
+      await selectChangedPath(changed[clamped]);
+    }
+
+    async function stepChanged(direction) {
+      const changed = getVisibleChangedPaths();
+      if (!changed.length || !state.activeChangedPath) return;
+      const current = changed.indexOf(state.activeChangedPath);
+      if (current === -1) return;
+      const next = current + direction;
+      if (next < 0 || next >= changed.length) return;
+      await selectChangedPath(changed[next]);
+    }
+
+    function jumpToDiff(index) {
+      if (!state.diffBlocks.length) return;
+
+      const clamped = Math.max(0, Math.min(state.diffBlocks.length - 1, index));
+      state.currentDiffIdx = clamped;
+
+      for (const row of els.diffBody.querySelectorAll(".row-focused")) {
+        row.classList.remove("row-focused");
+      }
+
+      const blockRows = els.diffBody.querySelectorAll(`[data-block="${clamped}"]`);
+      for (const row of blockRows) {
+        row.classList.add("row-focused");
+      }
+
+      if (blockRows.length) {
+        blockRows[0].scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      updateDiffNav();
+    }
+
+    function renderSidebar() {
+      const rows = sidebarRows();
+      if (!state.results) {
+        els.fileList.innerHTML = "<div style=\"padding:14px 10px;color:#667085;\">Cliquez sur Comparer pour afficher les fichiers.</div>";
+        return;
+      }
+      if (!rows.length) {
+        els.fileList.innerHTML = "<div style=\"padding:14px 10px;color:#667085;\">Aucun fichier pour ce filtre.</div>";
+        return;
+      }
+
+      const html = rows.map((row) => {
+        const dotClass = row.kind === "changed" ? "changed" : (row.kind === "same" ? "same" : (row.kind === "onlyA" ? "onlya" : "onlyb"));
+        const pillClass = row.kind === "changed" ? "status-changed" : (row.kind === "same" ? "status-ok" : (row.kind === "onlyA" ? "status-onlya" : "status-onlyb"));
+        const pillText = row.kind === "changed" ? "modifie" : (row.kind === "same" ? "identique" : (row.kind === "onlyA" ? "seulement A" : "seulement B"));
+        const active = state.activeChangedPath === row.path ? " active" : "";
+        const clickable = row.clickable ? " clickable" : "";
+        return `<div class="file-item${active}${clickable}" data-kind="${row.kind}" data-path="${escapeHtml(row.path)}"><span class="dot ${dotClass}"></span><span class="fname" title="${escapeHtml(row.path)}">${escapeHtml(row.path)}</span><span class="status-pill ${pillClass}">${pillText}</span></div>`;
+      }).join("");
+
+      els.fileList.innerHTML = html;
+
+      for (const item of els.fileList.querySelectorAll(".file-item.clickable")) {
+        item.addEventListener("click", async () => {
+          const path = item.dataset.path || "";
+          await selectChangedPath(path);
+        });
+      }
+
+      for (const item of els.fileList.querySelectorAll(".file-item:not(.clickable)")) {
+        item.addEventListener("click", () => {
+          state.activeChangedPath = "";
+          clearDiff("Ce fichier n'est pas modifie, aucune difference a afficher.");
+        });
+      }
+
+      updateFileNav();
+    }
+
+    function clearDiff(message) {
+      state.diffBlocks = [];
+      state.currentDiffIdx = -1;
+      els.welcome.style.display = "flex";
+      els.welcome.textContent = message || "Selectionnez un fichier modifie dans le panneau gauche pour voir le diff ligne par ligne.";
+      els.diffWrap.style.display = "none";
+      els.diffBody.innerHTML = "";
+      els.headLeft.textContent = `${state.folderAName || "Dossier A"}`;
+      els.headRight.textContent = `${state.folderBName || "Dossier B"}`;
+      updateDiffNav();
+    }
+
+    function renderDiffRows(rows) {
+      state.diffBlocks = [];
+      state.currentDiffIdx = -1;
+
+      let blockIndex = -1;
+      let inBlock = false;
+
+      const html = rows.map((r) => {
+        let blockAttr = "";
+
+        if (r.type === "row-eq") {
+          inBlock = false;
+        } else {
+          if (!inBlock) {
+            blockIndex += 1;
+            state.diffBlocks.push(blockIndex);
+            inBlock = true;
+          }
+          blockAttr = ` data-block="${blockIndex}"`;
+        }
+
+        return `<tr class="${r.type}"${blockAttr}><td class="ln">${r.aNo}</td><td class="code left">${escapeHtml(r.aText)}</td><td class="ln">${r.bNo}</td><td class="code right">${escapeHtml(r.bText)}</td></tr>`;
+      }).join("");
+      els.diffBody.innerHTML = html;
+
+      if (state.diffBlocks.length > 0) {
+        jumpToDiff(0);
+      } else {
+        updateDiffNav();
+      }
+    }
+
+    async function showDiffForPath(relPath) {
+      const a = state.mapA.get(relPath);
+      const b = state.mapB.get(relPath);
+      if (!a || !b) {
+        clearDiff("Fichier modifie introuvable dans les deux dossiers.");
+        return;
+      }
+
+      els.headLeft.textContent = `${state.folderAName || "Dossier A"} | ${relPath}`;
+      els.headRight.textContent = `${state.folderBName || "Dossier B"} | ${relPath}`;
+
+      setStatus(`Chargement du diff pour ${relPath}...`);
+      try {
+        const [aTextData, bTextData] = await Promise.all([a.getText(), b.getText()]);
+        if (aTextData.isBinary || bTextData.isBinary) {
+          clearDiff("Difference binaire detectee. Le diff texte n'est pas affiche pour ce fichier.");
+          setStatus("Fichier binaire modifie");
+          return;
+        }
+
+        const aLines = parseLines(aTextData.text);
+        const bLines = parseLines(bTextData.text);
+        const { rows, simplified } = buildLcsDiff(aLines, bLines);
+
+        els.welcome.style.display = "none";
+        els.diffWrap.style.display = "block";
+        renderDiffRows(rows);
+
+        setStatus(simplified ? `Diff pret (${relPath}, mode simplifie)` : `Diff pret (${relPath})`);
+      } catch (err) {
+        console.error(err);
+        clearDiff("Impossible de generer le diff pour ce fichier.");
+        setStatus("Echec du diff");
+      }
+    }
+
+    function renderFolderMeta(which) {
+      if (which === "A") {
+        els.metaA.textContent = `A: ${state.folderAName || "Dossier A"} (${state.mapA.size})`;
+      } else {
+        els.metaB.textContent = `B: ${state.folderBName || "Dossier B"} (${state.mapB.size})`;
+      }
+    }
+
+    function resetAll() {
+      state.folderAName = "";
+      state.folderBName = "";
+      state.mapA = new Map();
+      state.mapB = new Map();
+      state.results = null;
+      state.activeChangedPath = "";
+      state.search = "";
+      state.viewMode = "all";
+      state.diffBlocks = [];
+      state.currentDiffIdx = -1;
+
+      els.inputA.value = "";
+      els.inputB.value = "";
+      els.search.value = "";
+      els.viewMode.value = "all";
+      els.metaA.textContent = "A: non charge";
+      els.metaB.textContent = "B: non charge";
+      els.sidebarMeta.textContent = "Aucun resultat pour le moment";
+      els.fileList.innerHTML = "";
+      renderSummary();
+      clearDiff("Chargez les dossiers A et B, cliquez sur Comparer, puis selectionnez un fichier modifie dans le panneau gauche.");
+      setStatus("Reinitialisation terminee");
+      updateFileNav();
+    }
+
+    function clearSide(which) {
+      if (which === "A") {
+        state.folderAName = "";
+        state.mapA = new Map();
+        els.inputA.value = "";
+        els.metaA.textContent = "A: non charge";
+      } else {
+        state.folderBName = "";
+        state.mapB = new Map();
+        els.inputB.value = "";
+        els.metaB.textContent = "B: non charge";
+      }
+
+      state.results = null;
+      state.activeChangedPath = "";
+      renderSummary();
+      renderSidebar();
+      clearDiff("Lancez Comparer apres avoir charge les deux dossiers.");
+      setStatus(`Dossier ${which} vide`);
+      updateFileNav();
+    }
+
+    async function loadFromFallback(which, fileList) {
+      setStatus(`Chargement de ${which} via choix alternatif...`);
+      const { map, folderName } = await mapFromInputFiles(fileList);
+      if (which === "A") {
+        state.mapA = map;
+        state.folderAName = folderName || "Dossier A";
+        renderFolderMeta("A");
+      } else {
+        state.mapB = map;
+        state.folderBName = folderName || "Dossier B";
+        renderFolderMeta("B");
+      }
+      setStatus(`${which} charge (${map.size} fichiers)`);
+    }
+
+    async function selectFolder(which) {
+      if (!window.showDirectoryPicker) {
+        setStatus("Le selecteur de dossier n'est pas supporte dans ce navigateur. Utilisez le choix alternatif.");
+        return;
+      }
+      try {
+        const handle = await window.showDirectoryPicker();
+        setStatus(`Chargement de ${which}...`);
+        const { map, folderName } = await mapFromDirectoryHandle(handle);
+        if (which === "A") {
+          state.mapA = map;
+          state.folderAName = folderName;
+          renderFolderMeta("A");
+        } else {
+          state.mapB = map;
+          state.folderBName = folderName;
+          renderFolderMeta("B");
+        }
+        setStatus(`${which} charge (${map.size} fichiers)`);
+      } catch (err) {
+        if (err && err.name === "AbortError") return;
+        console.error(err);
+        setStatus(`Impossible de charger le dossier ${which}`);
+      }
+    }
+
+    function bindEvents() {
+      els.pickA.addEventListener("click", () => selectFolder("A"));
+      els.pickB.addEventListener("click", () => selectFolder("B"));
+
+      els.fallbackA.addEventListener("click", () => els.inputA.click());
+      els.fallbackB.addEventListener("click", () => els.inputB.click());
+
+      els.inputA.addEventListener("change", (e) => loadFromFallback("A", e.target.files));
+      els.inputB.addEventListener("change", (e) => loadFromFallback("B", e.target.files));
+
+      els.compareBtn.addEventListener("click", compareFolders);
+      els.resetBtn.addEventListener("click", resetAll);
+      els.clearA.addEventListener("click", () => clearSide("A"));
+      els.clearB.addEventListener("click", () => clearSide("B"));
+
+      els.fileFirst.addEventListener("click", () => jumpChanged(0));
+      els.filePrev.addEventListener("click", () => stepChanged(-1));
+      els.fileNext.addEventListener("click", () => stepChanged(1));
+      els.fileLast.addEventListener("click", () => {
+        const changed = getVisibleChangedPaths();
+        if (!changed.length) return;
+        jumpChanged(changed.length - 1);
+      });
+
+      els.diffFirst.addEventListener("click", () => jumpToDiff(0));
+      els.diffPrev.addEventListener("click", () => jumpToDiff(state.currentDiffIdx - 1));
+      els.diffNext.addEventListener("click", () => jumpToDiff(state.currentDiffIdx + 1));
+      els.diffLast.addEventListener("click", () => jumpToDiff(state.diffBlocks.length - 1));
+
+      els.search.addEventListener("input", () => {
+        state.search = els.search.value;
+        renderSidebar();
+      });
+
+      els.viewMode.addEventListener("change", () => {
+        state.viewMode = els.viewMode.value;
+        renderSidebar();
+      });
+    }
+
+    renderSummary();
+    clearDiff("Chargez les dossiers A et B, cliquez sur Comparer, puis selectionnez un fichier modifie dans le panneau gauche.");
+    bindEvents();
+    updateFileNav();
+    updateDiffNav();
+  </script>
+</body>
+</html>

@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Comparateur de programmes</title>
+<style>
+:root{--bg:#f2f5fb;--panel:#ffffff;--panel2:#f7f9fd;--border:#d8e0ef;--text:#1f2937;--muted:#667085;--accent:#0f62fe;--accent2:#2f9e44;--multi:#d97b00;--single:#6b7280;--addbg:#e9f9ee;--addfg:#166534;--delbg:#feefee;--delfg:#9f1239;--eq:#5f6b7a;--menu:#0b2545;--menuText:#e8eefc}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{display:flex;flex-direction:column;background:linear-gradient(180deg,#f4f7fd 0%,#eef3fb 100%);color:var(--text);font:13px/1.4 "IBM Plex Sans","Trebuchet MS",Verdana,sans-serif}
+.app-menu{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;background:linear-gradient(90deg,#0b2545 0%,#163b6c 100%);color:var(--menuText);border-bottom:1px solid #244a7f}
+.menu-brand{font-size:15px;font-weight:700;letter-spacing:.2px}
+.menu-help{position:relative;display:flex;align-items:center}
+.menu-help-btn{border:1px solid rgba(232,238,252,.36);background:rgba(255,255,255,.08);color:var(--menuText);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;cursor:help;letter-spacing:.2px}
+.menu-help-btn:hover,.menu-help-btn:focus-visible{background:rgba(255,255,255,.2);outline:none}
+.menu-help-popover{position:absolute;top:calc(100% + 8px);right:0;width:min(460px,86vw);padding:14px;background:#fff;border:1px solid #c9d6ee;border-radius:10px;box-shadow:0 14px 30px rgba(8,35,77,.24);color:#1f2937;opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .18s ease,transform .18s ease;z-index:20}
+.menu-help:hover .menu-help-popover,.menu-help:focus-within .menu-help-popover{opacity:1;transform:translateY(0);pointer-events:auto}
+.menu-help-popover h2{margin:0 0 8px 0;font-size:14px;color:#0b2545}
+.menu-help-popover p{margin:0 0 8px 0;color:#4f5f7a;font-size:12px;line-height:1.45}
+.menu-help-popover ol{margin:0;padding-left:18px;color:#1f2937;font-size:12px;line-height:1.5}
+.menu-help-popover li+li{margin-top:4px}
+header{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--panel);border-bottom:1px solid var(--border);flex-wrap:wrap;box-shadow:0 2px 8px rgba(8,35,77,.06)}
+h1{margin:0;font-size:16px;color:#0b2545;font-weight:700}.grow{flex:1}button,input{font:inherit}
+button{border:1px solid #b9c7e6;background:#1f6feb;color:#fff;border-radius:8px;padding:7px 11px;cursor:pointer;font-weight:600}
+button:hover{background:#0f62fe}
+input[type=text]{width:220px;max-width:35vw;background:#fff;color:var(--text);border:1px solid #c9d6ee;border-radius:8px;padding:7px 9px}
+.btn-ghost{background:#f4f8ff;color:#244776;border:1px solid #c7d8f6}
+.btn-ghost:hover{background:#eaf2ff;color:#17335b;border-color:#aac5f2}
+.folder-chip{color:var(--muted);font-size:12px;background:var(--panel2);border:1px solid var(--border);border-radius:999px;padding:5px 9px;max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.folder-chip strong{color:#1d2b45;font-weight:700}
+.select-like{background:#fff;color:var(--text);border:1px solid #c9d6ee;border-radius:8px;padding:7px 9px}
+.toggle{display:flex;align-items:center;gap:6px;color:#4c5a74;user-select:none}
+.toggle input{accent-color:var(--accent);cursor:pointer}
+.toggle span{cursor:pointer}
+.toggle:hover{color:#0b2545}
+.toggle.is-disabled{opacity:.55}
+#content-search-term:disabled{opacity:.6}
+.filter-panel{display:flex;flex-direction:column;gap:10px;min-width:min(980px,100%);width:100%;padding:10px 12px;border:1px solid #d6e3f7;border-radius:12px;background:linear-gradient(180deg,#f8fbff 0%,#f1f6ff 100%)}
+.filter-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.filter-title{display:flex;flex-direction:column;gap:2px}
+.filter-title strong{font-size:13px;color:#13315d;letter-spacing:.1px}
+.filter-title span{font-size:12px;color:#5b6f91}
+.filter-actions{display:flex;gap:8px;align-items:center}
+.filter-body{display:flex;flex-direction:column;gap:8px}
+.filter-body.collapsed{display:none}
+.filter-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.filter-row.compact{flex-wrap:nowrap;gap:16px;padding:10px 12px;background:linear-gradient(90deg,#f0f4ff 0%,#f5f9ff 100%);border-radius:8px;border:1px solid #d6e3f7}
+.filter-row input[type=text]{width:250px;max-width:100%}
+main{display:flex;flex:1;min-height:0;padding:10px;gap:10px}
+#sidebar{width:320px;min-width:230px;border:1px solid var(--border);border-radius:12px;background:var(--panel);display:flex;flex-direction:column;min-height:0;box-shadow:0 2px 10px rgba(16,52,107,.06)}
+#sidebar-meta{padding:10px 12px;border-bottom:1px solid var(--border);color:#4c5a74;font-weight:600}
+#file-list{overflow:auto;flex:1}.empty{padding:14px 10px;color:var(--muted)}
+.file-item{display:flex;align-items:center;gap:8px;padding:8px 11px;border-bottom:1px solid #edf1f8;cursor:pointer}.file-item:hover{background:#f4f8ff}.file-item.active{background:#eaf2ff}
+.dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}.dot.multi{background:var(--multi)}.dot.single{background:var(--single)}.fname{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vcnt{color:var(--muted);font-size:12px}
+.status-pill{font-size:11px;border:1px solid var(--border);padding:2px 6px;border-radius:999px;white-space:nowrap}
+.status-ok{color:#166534;border-color:#86d39f;background:#e9f9ee}
+.status-miss{color:#9f1239;border-color:#f2a4b9;background:#feefee}
+.status-warn{color:#9a6700;border-color:#f0c78f;background:#fff6e7}
+#content{display:flex;flex-direction:column;flex:1;min-width:0;min-height:0;border:1px solid var(--border);border-radius:12px;background:var(--panel);overflow:hidden;box-shadow:0 2px 10px rgba(16,52,107,.06)}
+#summary{display:none;gap:16px;padding:10px 12px;background:#f7f9fd;border-bottom:1px solid var(--border);color:#4c5a74;flex-wrap:wrap}#summary.show{display:flex}
+#compare-navbar{display:none;gap:0;align-items:center;padding:0;background:#f9fbff;border-bottom:2px solid var(--accent);color:var(--text);flex-wrap:wrap}#compare-navbar.show{display:flex}
+.nav-group{display:flex;align-items:center;gap:4px;padding:8px 12px;border-right:1px solid #e3eaf6}.nav-group:last-child{border-right:none;flex:1}
+.nav-btn{background:#fff;color:#13315d;padding:7px 13px;font-weight:600;border-radius:6px;font-size:13px;border:1px solid #cbd9f0;min-width:0;white-space:nowrap}
+.nav-btn:hover:not(:disabled){background:var(--accent);color:#fff;border-color:var(--accent)}.nav-btn:disabled{opacity:.35;cursor:default}
+.nav-diff-counter{padding:6px 14px;background:#eaf2ff;border:1px solid #a8c5ff;border-radius:6px;color:#0f62fe;font-weight:700;font-size:13px;white-space:nowrap;min-width:90px;text-align:center}
+.nav-file-info{color:#4f5f7a;font-size:12px;padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nav-nodiff{color:var(--muted);font-size:13px;padding:0 16px}
+.row-focused td{outline:2px solid var(--accent)!important;outline-offset:-2px}
+.row-search-hit td{box-shadow:inset 0 0 0 9999px rgba(255,221,87,.18)}
+.row-search-current td{box-shadow:inset 0 0 0 9999px rgba(255,193,7,.32);outline:2px solid #ffc107;outline-offset:-2px}
+.search-nav-btn{background:#fff;color:#b8860b;padding:6px 11px;font-weight:600;border-radius:6px;font-size:13px;border:1px solid #ffd966;min-width:0;white-space:nowrap}
+.search-nav-btn:hover:not(:disabled){background:#fffacd;border-color:#ffc107}
+.search-nav-btn:disabled{opacity:.35;cursor:default}
+#variant-controls{display:none;gap:10px;align-items:center;padding:10px 12px;background:#f7f9fd;border-bottom:1px solid var(--border);color:#4c5a74;flex-wrap:wrap}#variant-controls.show{display:flex}
+#variant-controls select{background:#fff;color:var(--text);border:1px solid #c9d6ee;border-radius:8px;padding:5px 8px;max-width:280px}
+.picker{display:flex;align-items:center;gap:6px}.picker label{white-space:nowrap}
+#legend{display:flex;gap:12px;align-items:center;padding:10px 12px;background:#f9fbff;border-bottom:1px solid var(--border);color:#4f5f7a;font-size:12px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px}.legend-sample{padding:2px 8px;border-radius:4px;border:1px solid transparent}.legend-add{background:var(--addbg);color:var(--addfg);border-color:#89d2a1}.legend-del{background:var(--delbg);color:var(--delfg);border-color:#f2a4b9}
+#welcome{display:flex;align-items:center;justify-content:center;flex:1;color:#60708a;padding:24px;text-align:center}
+#diff-wrap{display:none;flex:1;min-height:0;overflow:auto}
+table{width:100%;border-collapse:collapse;table-layout:fixed;font:12px/1.5 'Courier New',Consolas,monospace}
+th,td{border-bottom:1px solid #edf1f8;padding:5px 8px;vertical-align:top;white-space:pre-wrap;word-break:break-word}
+th{position:sticky;top:0;background:#f7f9fd;color:#4f5f7a;text-align:left;z-index:1}
+.ln{width:60px;color:#6b7280;text-align:right;border-right:2px solid #e4ebf7;padding-right:8px}
+.code{width:calc(50% - 60px);background:#ffffff}.code.modified{background:#fff6e7}
+.row-add .right{background:var(--delbg);color:var(--delfg)}.row-del .left{background:var(--addbg);color:var(--addfg)}.row-eq .left,.row-eq .right{color:var(--eq)}
+.ch-add{background:rgba(22,101,52,.18);padding:1px 3px;border-radius:2px;font-weight:600}.ch-del{background:rgba(159,18,57,.16);padding:1px 3px;border-radius:2px;font-weight:600}
+@media (max-width:980px){main{flex-direction:column}#sidebar{width:100%;max-height:38vh}#content{min-height:45vh}.menu-help-popover{left:0;right:auto;width:min(520px,94vw)}.filter-panel{padding:9px 10px}.filter-actions button{padding:6px 9px}}
+</style>
+</head>
+<body>
+<div class="app-menu">
+  <div class="menu-brand">Comparateur de programmes Pro</div>
+  <div class="menu-help">
+    <button class="menu-help-btn" type="button" aria-label="Afficher l'aide rapide">Comment ca marche ?</button>
+    <div class="menu-help-popover" role="note" aria-live="polite">
+      <h2>Guide rapide pour nouveau utilisateur</h2>
+      <p>Cette application compare les programmes S7 et 4YOU, detecte les differences et vous aide a verifier les changements.</p>
+      <ol>
+        <li>Chargez d'abord le dossier S7, puis le dossier 4YOU.</li>
+        <li>Cliquez sur "Afficher les fichiers modifies de S7" pour verifier d'abord les programmes modifies dans S7.</li>
+        <li>Cliquez ensuite sur "Verifier les changements S7 dans 4YOU" pour controler ces changements entre S7 et 4YOU.</li>
+        <li>Selectionnez un programme a gauche pour voir les differences ligne par ligne.</li>
+        <li>Utilisez les filtres de recherche pour trouver un nom ou un texte precise.</li>
+        <li>Exportez les rapports avec le bouton "Exporter les rapports".</li>
+      </ol>
+    </div>
+  </div>
+</div>
+<header>
+  <h1>Comparateur de programmes</h1>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button id="open-baseline-btn" type="button">Ouvrir le dossier S7</button>
+    <span id="baseline-status-badge" style="background:#e8f0ff;color:#0f62fe;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">S7: non charge</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button id="open-target-btn" type="button">Ouvrir le dossier 4YOU</button>
+    <span id="target-status-badge" style="background:#e8f0ff;color:#0f62fe;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">4YOU: non charge</span>
+  </div>
+  <input id="folder-input-baseline" type="file" webkitdirectory multiple hidden>
+  <input id="folder-input-target" type="file" webkitdirectory multiple hidden>
+  <select id="active-folder" class="select-like" title="Dossier actif dans la vue de comparaison">
+    <option value="baseline">Afficher le dossier S7</option>
+    <option value="target">Afficher le dossier 4YOU</option>
+  </select>
+  <button id="cross-check-btn" type="button">Verifier les changements S7 dans 4YOU</button>
+  <button id="baseline-modified-btn" type="button">Afficher les fichiers modifies de S7</button>
+  <button id="export-lists-btn" type="button">📋 Exporter les rapports</button>
+  <div class="filter-panel">
+    <div class="filter-head">
+      <div class="filter-title">
+        <strong>Recherche et filtres</strong>
+        <span>Affinez la liste des fichiers et la comparaison en un clic.</span>
+      </div>
+      <div class="filter-actions">
+        <button id="reset-filters-btn" class="btn-ghost" type="button">Reinitialiser les filtres</button>
+        <button id="toggle-filters-btn" class="btn-ghost" type="button" aria-expanded="true">Masquer les filtres</button>
+      </div>
+    </div>
+    <div id="filters-body" class="filter-body">
+      <div class="filter-row" style="flex-wrap:nowrap;gap:8px;align-items:center;padding:8px 12px;background:linear-gradient(90deg,#f0f4ff 0%,#f5f9ff 100%);border-radius:8px;border:1px solid #d6e3f7;overflow-x:auto">
+        <label class="toggle"><input id="modified-only" type="checkbox"><span style="font-weight:600;color:#0b2545;white-space:nowrap">Afficher les fichiers modifies</span></label>
+        <label class="toggle"><input id="content-search-enabled" type="checkbox"><span style="font-weight:600;color:#0b2545;white-space:nowrap">Rechercher dans le contenu</span></label>
+        <label class="toggle"><input id="content-search-diff-only" type="checkbox"><span style="font-weight:600;color:#0b2545;white-space:nowrap">Uniquement les differences</span></label>
+        <span style="border-left:1px solid #c7d8f6;height:20px;margin:0 4px"></span>
+        <input id="search" type="text" placeholder="Fichiers" style="width:140px;max-width:140px;flex-shrink:0;font-size:12px">
+        <span style="border-left:1px solid #c7d8f6;height:20px;margin:0 4px"></span>
+        <div id="search-occurrence-nav" style="display:none;gap:4px;align-items:center;flex-shrink:0">
+          <button id="filter-search-first" class="search-nav-btn" type="button" title="Premiere occurrence" style="padding:5px 8px">⏮</button>
+          <button id="filter-search-prev" class="search-nav-btn" type="button" title="Occurrence precedente" style="padding:5px 8px">◀</button>
+          <span id="filter-search-occurrence-counter" style="font-weight:700;color:#b8860b;font-size:12px;min-width:60px;text-align:center">0 / 0</span>
+          <button id="filter-search-next" class="search-nav-btn" type="button" title="Occurrence suivante" style="padding:5px 8px">▶</button>
+          <button id="filter-search-last" class="search-nav-btn" type="button" title="Derniere occurrence" style="padding:5px 8px">⏭</button>
+        </div>
+        <input id="content-search-term" type="text" placeholder="Texte a trouver" style="width:160px;max-width:160px;flex-shrink:0;font-size:12px">
+        <span style="border-left:1px solid #c7d8f6;height:20px;margin:0 4px"></span>
+        <label class="toggle"><input id="ignore-line-numbers" type="checkbox" title="Ignorer les lignes contenant uniquement des numeros"><span style="font-weight:600;color:#0b2545;white-space:nowrap;font-size:12px">Ignorer lignes #</span></label>
+        <label class="toggle"><input id="strip-leading-numbers" type="checkbox" checked title="Supprimer les numeros de ligne"><span style="font-weight:600;color:#0b2545;white-space:nowrap;font-size:12px">Supprimer #</span></label>
+        <label class="toggle"><input id="ignore-trailing-spaces" type="checkbox" checked title="Ignorer les espaces de fin"><span style="font-weight:600;color:#0b2545;white-space:nowrap;font-size:12px">Ignorer espaces</span></label>
+      </div>
+    </div>
+  </div>
+</header>
+<main>
+  <aside id="sidebar">
+    <div id="sidebar-meta">0 fichier</div>
+    <div id="file-list"><div class="empty">Ouvrez le dossier S7, puis le dossier 4YOU, puis lancez "Verifier les changements S7 dans 4YOU".</div></div>
+  </aside>
+  <section id="content">
+    <div id="summary"></div>
+    <div id="compare-navbar">
+      <div class="nav-group">
+        <button id="diff-first" class="nav-btn" type="button" title="Premiere difference">⏮</button>
+        <button id="diff-prev" class="nav-btn" type="button" title="Difference precedente">◀ Prec</button>
+        <span id="diff-counter" class="nav-diff-counter">0 / 0</span>
+        <button id="diff-next" class="nav-btn" type="button" title="Difference suivante">Suiv ▶</button>
+        <button id="diff-last" class="nav-btn" type="button" title="Derniere difference">⏭</button>
+      </div>
+      <div class="nav-group">
+        <button id="prev-file" class="nav-btn" type="button" title="Fichier precedent">◀ Fichier</button>
+        <button id="next-file" class="nav-btn" type="button" title="Fichier suivant">Fichier ▶</button>
+        <button id="prev-variant" class="nav-btn" type="button" title="Version precedente">◀ Ver</button>
+        <button id="next-variant" class="nav-btn" type="button" title="Version suivante">Ver ▶</button>
+      </div>
+      <div class="nav-group"><span id="compare-status" class="nav-file-info"></span><span id="variant-count"></span></div>
+    </div>
+    <div id="variant-controls">
+      <div class="picker"><label for="left-variant">Fichier Actuelle</label><select id="left-variant"></select></div>
+      <div class="picker"><label for="right-variant">Fichier Ancienne</label><select id="right-variant"></select></div>
+    </div>
+    <div id="legend">
+      <div class="legend-item"><span class="legend-sample legend-add">Vert</span><span>ligne ajoutee dans le fichier courant (gauche)</span></div>
+      <div class="legend-item"><span class="legend-sample legend-del">Rouge</span><span>ligne supprimee - presente seulement dans l'ancienne version (droite)</span></div>
+    </div>
+    <div id="welcome">Chargez les dossiers, puis cliquez sur un fichier pour comparer. Le point orange signifie que ce fichier a plusieurs versions.</div>
+    <div id="diff-wrap">
+      <table>
+        <colgroup><col class="ln"><col class="code"><col class="ln"><col class="code"></colgroup>
+        <thead>
+          <tr><th class="ln">#</th><th id="head-left">Courant</th><th class="ln">#</th><th id="head-right">Ancien</th></tr>
+        </thead>
+        <tbody id="diff-body"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<div id="export-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:24px;max-height:80vh;overflow:auto;max-width:600px;width:90%">
+    <h2 style="margin:0 0 16px 0;color:var(--accent)">📋 Export des rapports</h2>
+    <p style="margin:0 0 16px 0;color:var(--muted);font-size:13px">Selectionnez les rapports a exporter et choisissez les versions a inclure :</p>
+    
+    <div style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--panel2);border:1px solid var(--border);border-radius:6px;margin-bottom:12px">
+        <input type="checkbox" id="export-s7-full" checked>
+        <div style="flex:1">
+          <label for="export-s7-full" style="cursor:pointer;font-weight:600;display:block;margin-bottom:6px">Tous les programmes S7</label>
+          <small style="color:var(--muted)">Liste complete des programmes S7 et de leurs versions</small>
+        </div>
+        <div style="display:flex;gap:8px;flex-direction:column;font-size:12px">
+          <label><input type="radio" name="s7-full-version" value="current" checked> Version courante uniquement</label>
+          <label><input type="radio" name="s7-full-version" value="all"> Toutes les variantes</label>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--panel2);border:1px solid var(--border);border-radius:6px;margin-bottom:12px">
+        <input type="checkbox" id="export-s7-modified" checked>
+        <div style="flex:1">
+          <label for="export-s7-modified" style="cursor:pointer;font-weight:600;display:block;margin-bottom:6px">Programmes S7 modifies</label>
+          <small style="color:var(--muted)">Programmes S7 qui possedent plusieurs versions</small>
+        </div>
+        <div style="display:flex;gap:8px;flex-direction:column;font-size:12px">
+          <label><input type="radio" name="s7-modified-version" value="current" checked> Version courante uniquement</label>
+          <label><input type="radio" name="s7-modified-version" value="all"> Toutes les variantes</label>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--panel2);border:1px solid var(--border);border-radius:6px;margin-bottom:12px">
+        <input type="checkbox" id="export-4you-full" checked>
+        <div style="flex:1">
+          <label for="export-4you-full" style="cursor:pointer;font-weight:600;display:block;margin-bottom:6px">Tous les programmes 4YOU</label>
+          <small style="color:var(--muted)">Liste complete des programmes 4YOU et de leurs versions</small>
+        </div>
+        <div style="display:flex;gap:8px;flex-direction:column;font-size:12px">
+          <label><input type="radio" name="4you-full-version" value="current" checked> Version courante uniquement</label>
+          <label><input type="radio" name="4you-full-version" value="all"> Toutes les variantes</label>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--panel2);border:1px solid var(--border);border-radius:6px;margin-bottom:12px">
+        <input type="checkbox" id="export-4you-modified" checked>
+        <div style="flex:1">
+          <label for="export-4you-modified" style="cursor:pointer;font-weight:600;display:block;margin-bottom:6px">Programmes 4YOU modifies</label>
+          <small style="color:var(--muted)">Programmes 4YOU qui possedent plusieurs versions</small>
+        </div>
+        <div style="display:flex;gap:8px;flex-direction:column;font-size:12px">
+          <label><input type="radio" name="4you-modified-version" value="current" checked> Version courante uniquement</label>
+          <label><input type="radio" name="4you-modified-version" value="all"> Toutes les variantes</label>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--panel2);border:1px solid var(--border);border-radius:6px;margin-bottom:12px">
+        <input type="checkbox" id="export-resume" checked>
+        <div style="flex:1">
+          <label for="export-resume" style="cursor:pointer;font-weight:600;display:block;margin-bottom:6px">📊 Resume de comparaison</label>
+          <small style="color:var(--muted)">Resume S7 vs 4YOU : presence, modifications et statut</small>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin:16px 0;padding:12px;background:var(--addbg);border:1px solid #238636;border-radius:6px;color:var(--muted);font-size:12px">
+      <strong style="color:var(--addfg)">ℹ️ Guide des colonnes</strong>
+      <div style="margin-top:8px">
+        <div><strong>base_name:</strong> Nom du programme (sans suffixe de version)</div>
+        <div><strong>current_variant:</strong> Version courante utilisee</div>
+        <div><strong>variant_count:</strong> Nombre de versions existantes pour ce programme</div>
+        <div><strong>all_variants:</strong> Liste de tous les noms de versions (separes par des points-virgules)</div>
+      </div>
+    </div>
+
+    <div style="margin:16px 0;padding:12px;background:var(--panel2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
+      <strong>Format des fichiers de rapport</strong>
+      <div style="display:flex;gap:16px;margin-top:8px;flex-wrap:wrap">
+        <label><input type="radio" name="export-file-format" value="csv"> CSV uniquement</label>
+        <label><input type="radio" name="export-file-format" value="txt"> TXT uniquement (espaces preserves)</label>
+        <label><input type="radio" name="export-file-format" value="both" checked> CSV + TXT</label>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px">
+      <button id="export-modal-cancel" type="button" style="background:var(--panel2)">Annuler</button>
+      <button id="export-modal-confirm" type="button" style="background:#238636">✓ Exporter la selection</button>
+    </div>
+  </div>
+</div>
+<script>
+const SUFFIX_RE=/(-AV_INSTALL_KIT_\d+|_AV_INSTALL_KIT_\d+|-\d{6,}[A-Z0-9]*|\.\d{6,}|[_.]sv\d{6,}|[_.]svg\d+|-svg[A-Za-z0-9_-]+|-cst\d+|\.avecDisplays|\.avecdisplay|\.DGX|\.saveWass|\.svg[-_]\w+|\.old|\.OLD|_old|_OLD|\.V\d+|-OLD|-NEW|-SV|-SAVSHS|_SAVSHS|_SAVTAH|_SAV$|_ORA$|_DRJ$|_STND$|_DISPL$|_CZW$|_SVE$|_SBA$|_svg$|_avant_[\w-]+|_avec_[\w-]+|_av-[\w-]+|-\d{2}0\d{3,})+$/i;
+const SAV_PREFIX_RE=/^SAV_\d+_/i;
+const LINE_NUMBER_RE=/^\d{6}$/;
+const LEADING_NUMBER_RE=/^\d{6}/;
+const CONTENT_SEARCH_DEBOUNCE_MS=180;
+function createFolderData(){return{label:'non charge',groups:{},diffCache:{},textCache:{},processedCache:{}};}
+const state={
+  groups:{},
+  selectedBase:null,
+  modifiedOnly:false,
+  contentSearchEnabled:false,
+  contentSearchTerm:'',
+  contentSearchDiffOnly:false,
+  ignoreLineNumbers:false,
+  stripLeadingNumbers:true,
+  ignoreTrailingSpaces:true,
+  diffCache:{},
+  textCache:{},
+  processedCache:{},
+  renderToken:0,
+  leftVariantName:null,
+  rightVariantName:null,
+  diffBlocks:[],
+  currentDiffIdx:-1,
+  searchOccurrences:[],
+  currentOccurrenceIdx:-1,
+  folderData:{baseline:createFolderData(),target:createFolderData()},
+  activeFolder:'baseline',
+  crossCheckMode:false,
+  crossCheckRows:[]
+};
+const openBaselineBtn=document.getElementById('open-baseline-btn');
+const openTargetBtn=document.getElementById('open-target-btn');
+const folderInputBaseline=document.getElementById('folder-input-baseline');
+const folderInputTarget=document.getElementById('folder-input-target');
+const activeFolderSelect=document.getElementById('active-folder');
+const crossCheckBtn=document.getElementById('cross-check-btn');
+const baselineModifiedBtn=document.getElementById('baseline-modified-btn');
+const exportListsBtn=document.getElementById('export-lists-btn');
+const searchInput=document.getElementById('search');
+const modifiedOnlyInput=document.getElementById('modified-only');
+const contentSearchEnabledInput=document.getElementById('content-search-enabled');
+const contentSearchTermInput=document.getElementById('content-search-term');
+const contentSearchDiffOnlyInput=document.getElementById('content-search-diff-only');
+const ignoreLineNumbersInput=document.getElementById('ignore-line-numbers');
+const stripLeadingNumbersInput=document.getElementById('strip-leading-numbers');
+const ignoreTrailingSpacesInput=document.getElementById('ignore-trailing-spaces');
+const resetFiltersBtn=document.getElementById('reset-filters-btn');
+const toggleFiltersBtn=document.getElementById('toggle-filters-btn');
+const filtersBody=document.getElementById('filters-body');
+const searchOccurrenceNav=document.getElementById('search-occurrence-nav');
+const filterSearchOccurrenceCounter=document.getElementById('filter-search-occurrence-counter');
+const sidebarMeta=document.getElementById('sidebar-meta');
+const fileList=document.getElementById('file-list');
+const summary=document.getElementById('summary');
+const compareNavbar=document.getElementById('compare-navbar');
+const prevFileBtn=document.getElementById('prev-file');
+const nextFileBtn=document.getElementById('next-file');
+const compareStatus=document.getElementById('compare-status');
+const variantCount=document.getElementById('variant-count');
+const prevVariantBtn=document.getElementById('prev-variant');
+const nextVariantBtn=document.getElementById('next-variant');
+const variantControls=document.getElementById('variant-controls');
+const welcome=document.getElementById('welcome');
+const diffWrap=document.getElementById('diff-wrap');
+const diffBody=document.getElementById('diff-body');
+const headLeft=document.getElementById('head-left');
+const headRight=document.getElementById('head-right');
+const leftVariantSelect=document.getElementById('left-variant');
+const rightVariantSelect=document.getElementById('right-variant');
+let contentSearchDebounceHandle=null;
+openBaselineBtn.addEventListener('click',()=>folderInputBaseline.click());
+openTargetBtn.addEventListener('click',()=>folderInputTarget.click());
+folderInputBaseline.addEventListener('change',e=>loadFolder(Array.from(e.target.files||[]),'baseline'));
+folderInputTarget.addEventListener('change',e=>loadFolder(Array.from(e.target.files||[]),'target'));
+activeFolderSelect.addEventListener('change',async()=>{state.activeFolder=activeFolderSelect.value;state.crossCheckMode=false;syncActiveFolderData();clearDiff();await renderList();});
+crossCheckBtn.addEventListener('click',async()=>{await activateCrossCheckMode();});
+baselineModifiedBtn.addEventListener('click',async()=>{state.crossCheckMode=false;state.activeFolder='baseline';activeFolderSelect.value='baseline';modifiedOnlyInput.checked=true;state.modifiedOnly=true;syncActiveFolderData();state.selectedBase=null;clearDiff();await renderList();});
+exportListsBtn.addEventListener('click',async()=>{showExportModal();});
+searchInput.addEventListener('input',()=>{renderList();});
+modifiedOnlyInput.addEventListener('change',async()=>{state.modifiedOnly=modifiedOnlyInput.checked;await renderList();});
+contentSearchEnabledInput.addEventListener('change',async()=>{state.contentSearchEnabled=contentSearchEnabledInput.checked;syncContentSearchControls();await renderList();});
+contentSearchTermInput.addEventListener('input',()=>{state.contentSearchTerm=contentSearchTermInput.value;const hasNeedle=Boolean(state.contentSearchTerm.trim());if(hasNeedle&&!state.contentSearchEnabled){state.contentSearchEnabled=true;contentSearchEnabledInput.checked=true;}else if(!hasNeedle&&state.contentSearchEnabled){state.contentSearchEnabled=false;contentSearchEnabledInput.checked=false;}syncContentSearchControls();scheduleContentSearchRender();});
+contentSearchDiffOnlyInput.addEventListener('change',async()=>{state.contentSearchDiffOnly=contentSearchDiffOnlyInput.checked;await renderList();if(state.selectedBase){if(state.crossCheckMode){await compareCrossCheckCurrent(state.selectedBase);}else{await compareSelectedBase();}}});
+ignoreLineNumbersInput.addEventListener('change',async()=>{state.ignoreLineNumbers=ignoreLineNumbersInput.checked;resetFolderCaches();if(state.modifiedOnly||state.crossCheckMode)await renderList();if(state.selectedBase)await compareSelectedBase();});
+stripLeadingNumbersInput.addEventListener('change',async()=>{state.stripLeadingNumbers=stripLeadingNumbersInput.checked;resetFolderCaches();if(state.modifiedOnly||state.crossCheckMode)await renderList();if(state.selectedBase)await compareSelectedBase();});
+ignoreTrailingSpacesInput.addEventListener('change',async()=>{state.ignoreTrailingSpaces=ignoreTrailingSpacesInput.checked;resetFolderCaches();if(state.modifiedOnly||state.crossCheckMode)await renderList();if(state.selectedBase)await compareSelectedBase();});
+toggleFiltersBtn.addEventListener('click',()=>{const isCollapsed=filtersBody.classList.toggle('collapsed');toggleFiltersBtn.textContent=isCollapsed?'Afficher les filtres':'Masquer les filtres';toggleFiltersBtn.setAttribute('aria-expanded',String(!isCollapsed));});
+resetFiltersBtn.addEventListener('click',async()=>{searchInput.value='';modifiedOnlyInput.checked=false;contentSearchEnabledInput.checked=false;contentSearchTermInput.value='';contentSearchDiffOnlyInput.checked=false;ignoreLineNumbersInput.checked=false;stripLeadingNumbersInput.checked=true;ignoreTrailingSpacesInput.checked=true;state.modifiedOnly=false;state.contentSearchEnabled=false;state.contentSearchTerm='';state.contentSearchDiffOnly=false;state.ignoreLineNumbers=false;state.stripLeadingNumbers=true;state.ignoreTrailingSpaces=true;resetFolderCaches();syncContentSearchControls();await renderList();if(state.selectedBase){if(state.crossCheckMode){await compareCrossCheckCurrent(state.selectedBase);}else{await compareSelectedBase();}}});
+leftVariantSelect.addEventListener('change',()=>{state.leftVariantName=leftVariantSelect.value;compareSelectedBase();});
+rightVariantSelect.addEventListener('change',()=>{state.rightVariantName=rightVariantSelect.value;compareSelectedBase();});
+document.getElementById('diff-first').addEventListener('click',()=>jumpToDiff(0));
+document.getElementById('diff-prev').addEventListener('click',()=>jumpToDiff(state.currentDiffIdx-1));
+document.getElementById('diff-next').addEventListener('click',()=>jumpToDiff(state.currentDiffIdx+1));
+document.getElementById('diff-last').addEventListener('click',()=>jumpToDiff(state.diffBlocks.length-1));
+document.getElementById('filter-search-first').addEventListener('click',()=>jumpToOccurrence(0));
+document.getElementById('filter-search-prev').addEventListener('click',()=>jumpToOccurrence(state.currentOccurrenceIdx-1));
+document.getElementById('filter-search-next').addEventListener('click',()=>jumpToOccurrence(state.currentOccurrenceIdx+1));
+document.getElementById('filter-search-last').addEventListener('click',()=>jumpToOccurrence(state.searchOccurrences.length-1));
+prevFileBtn.addEventListener('click',()=>stepSelectedBase(-1));
+nextFileBtn.addEventListener('click',()=>stepSelectedBase(1));
+prevVariantBtn.addEventListener('click',()=>stepVariant(-1));
+nextVariantBtn.addEventListener('click',()=>stepVariant(1));
+function scheduleContentSearchRender(){if(contentSearchDebounceHandle){clearTimeout(contentSearchDebounceHandle);}contentSearchDebounceHandle=setTimeout(async()=>{await renderList();if(state.selectedBase){if(state.crossCheckMode){await compareCrossCheckCurrent(state.selectedBase);}else{await compareSelectedBase();}}},CONTENT_SEARCH_DEBOUNCE_MS);}
+function syncContentSearchControls(){const enabled=Boolean(state.contentSearchEnabled||state.contentSearchTerm.trim());contentSearchDiffOnlyInput.disabled=!enabled;const diffOnlyToggle=contentSearchDiffOnlyInput.closest('.toggle');if(diffOnlyToggle){diffOnlyToggle.classList.toggle('is-disabled',!enabled);}if(!enabled&&state.contentSearchDiffOnly){state.contentSearchDiffOnly=false;contentSearchDiffOnlyInput.checked=false;}}
+function resetFolderCaches(){for(const key of ['baseline','target']){state.folderData[key].diffCache={};state.folderData[key].processedCache={};}}
+function syncActiveFolderData(){const data=state.folderData[state.activeFolder];state.groups=data.groups;state.diffCache=data.diffCache;state.textCache=data.textCache;state.processedCache=data.processedCache;updateFolderChips();}
+function updateFolderChips(){updateFolderButtons();}
+function updateFolderButtons(){const baselineText=state.folderData.baseline.label==='non charge'?'S7: non charge':('S7: '+escapeHtml(state.folderData.baseline.label));const targetText=state.folderData.target.label==='non charge'?'4YOU: non charge':('4YOU: '+escapeHtml(state.folderData.target.label));document.getElementById('baseline-status-badge').textContent=baselineText;document.getElementById('target-status-badge').textContent=targetText;}
+function getBaseName(name){return name.replace(SAV_PREFIX_RE,'').replace(SUFFIX_RE,'');}
+function getVariantRank(name){const normalized=getBaseName(name);if(name===normalized)return 0;if(SAV_PREFIX_RE.test(name))return 1;if(/AV_INSTALL_KIT/i.test(name))return 2;if(/-cst\d+/i.test(name))return 3;return 4;}
+function sortVariant(leftName,rightName){const rankDiff=getVariantRank(leftName)-getVariantRank(rightName);if(rankDiff!==0)return rankDiff;const leftBase=getBaseName(leftName)===leftName;const rightBase=getBaseName(rightName)===rightName;if(leftBase&&!rightBase)return-1;if(!leftBase&&rightBase)return 1;if(leftName.length!==rightName.length)return leftName.length-rightName.length;return leftName.localeCompare(rightName);}
+function getPreferredComparisonVariant(variants,currentName){return variants.find(variant=>variant.name!==currentName&&SAV_PREFIX_RE.test(variant.name))||variants.find(variant=>variant.name!==currentName)||null;}
+function loadFolder(files,kind){const groups={};const seenByBase={};for(const file of files){const rel=file.webkitRelativePath||file.name;const parts=rel.split('/');if(parts.length<2)continue;const name=parts[parts.length-1];const base=getBaseName(name);if(!base)continue;if(!groups[base]){groups[base]=[];seenByBase[base]=new Set();}const dedupKey=name.toLowerCase();if(seenByBase[base].has(dedupKey))continue;seenByBase[base].add(dedupKey);groups[base].push({name,file});}for(const base of Object.keys(groups)){groups[base].sort((a,b)=>sortVariant(a.name,b.name));}const data=state.folderData[kind];data.groups=groups;data.diffCache={};data.textCache={};data.processedCache={};data.label=files[0]?.webkitRelativePath?.split('/')[0]||'Dossier charge';if(state.activeFolder===kind){syncActiveFolderData();state.selectedBase=null;state.leftVariantName=null;state.rightVariantName=null;state.crossCheckMode=false;renderList();clearDiff();}else{updateFolderChips();}}
+async function activateCrossCheckMode(){if(!Object.keys(state.folderData.baseline.groups).length||!Object.keys(state.folderData.target.groups).length){fileList.innerHTML='<div class="empty">Chargez d\'abord les deux dossiers (S7 et 4YOU).</div>';return;}state.crossCheckMode=true;state.selectedBase=null;clearDiff();sidebarMeta.textContent='Verification des fichiers modifies de S7...';const baselineData=state.folderData.baseline;const targetData=state.folderData.target;const bases=Object.keys(baselineData.groups).sort();const modifiedFlags=await Promise.all(bases.map(base=>isModifiedBaseInData(base,baselineData)));const rows=[];for(let i=0;i<bases.length;i+=1){if(!modifiedFlags[i])continue;const base=bases[i];const existsInTarget=Boolean(targetData.groups[base]);let sameAsBaselineCurrent=false;if(existsInTarget){sameAsBaselineCurrent=await areCurrentVersionsEqual(base,baselineData,targetData);}rows.push({base,existsInTarget,sameAsBaselineCurrent,baselineVariants:baselineData.groups[base].length,targetVariants:existsInTarget?targetData.groups[base].length:0});}state.crossCheckRows=rows;await renderList();}
+async function areCurrentVersionsEqual(base,baselineData,targetData){const baselineVariants=baselineData.groups[base]||[];const targetVariants=targetData.groups[base]||[];if(!baselineVariants.length||!targetVariants.length)return false;const baselineCurrent=baselineVariants[0].file;const targetCurrent=targetVariants[0].file;const [leftLines,rightLines]=await Promise.all([getProcessedLinesForData(baselineCurrent,baselineData),getProcessedLinesForData(targetCurrent,targetData)]);if(leftLines.length!==rightLines.length)return false;for(let i=0;i<leftLines.length;i+=1){if(leftLines[i]!==rightLines[i])return false;}return true;}
+async function renderList(){const token=++state.renderToken;if(state.crossCheckMode){return renderCrossCheckList(token);}const filter=searchInput.value.trim().toLowerCase();const allBases=Object.keys(state.groups).filter(base=>!filter||base.toLowerCase().includes(filter)).sort();const totalFiles=Object.values(state.groups).reduce((sum,variants)=>sum+variants.length,0);const multiCount=Object.values(state.groups).filter(variants=>variants.length>1).length;sidebarMeta.textContent=totalFiles?totalFiles+' fichiers · '+multiCount+' avec variantes':'0 fichier';let bases=allBases;if(state.modifiedOnly){sidebarMeta.textContent='Verification des fichiers modifies...';const flags=await Promise.all(allBases.map(base=>isModifiedBase(base)));if(token!==state.renderToken)return;bases=allBases.filter((base,index)=>flags[index]);sidebarMeta.textContent=totalFiles?bases.length+' fichiers modifies · '+multiCount+' avec variantes':'0 fichier';}if(state.contentSearchEnabled){const needle=state.contentSearchTerm.trim().toLowerCase();if(needle){sidebarMeta.textContent=state.contentSearchDiffOnly?'Recherche du texte dans les differences...':'Recherche du texte dans les fichiers...';const matcher=state.contentSearchDiffOnly?baseDiffContainsText:baseContainsText;const flags=await Promise.all(bases.map(base=>matcher(base,needle)));if(token!==state.renderToken)return;bases=bases.filter((base,index)=>flags[index]);sidebarMeta.textContent='correspondances : '+bases.length+' fichier(s) de base';}}
+if(!bases.length){fileList.innerHTML='<div class="empty">'+(state.modifiedOnly?'Aucun fichier modifie trouve.':state.contentSearchEnabled&&state.contentSearchTerm.trim()?(state.contentSearchDiffOnly?'Aucun fichier ne contient ce texte dans les differences.':'Aucun fichier ne contient ce texte.'):'Aucun fichier correspondant.')+'</div>';return;}const html=[];for(const base of bases){const variants=state.groups[base];const multi=variants.length>1;const active=state.selectedBase===base?' active':'';html.push('<div class="file-item'+active+'" data-base="'+escapeAttr(base)+'"><span class="dot '+(multi?'multi':'single')+'"></span><span class="fname" title="'+escapeAttr(base)+'">'+escapeHtml(base)+'</span><span class="vcnt">'+variants.length+'</span></div>');}fileList.innerHTML=html.join('');for(const row of fileList.querySelectorAll('.file-item')){row.addEventListener('click',()=>selectBase(row.dataset.base));}}
+async function renderCrossCheckList(token){const filter=searchInput.value.trim().toLowerCase();const rows=state.crossCheckRows.filter(row=>!filter||row.base.toLowerCase().includes(filter));if(token!==state.renderToken)return;const total=state.crossCheckRows.length;const found=state.crossCheckRows.filter(row=>row.existsInTarget).length;const synced=state.crossCheckRows.filter(row=>row.existsInTarget&&row.sameAsBaselineCurrent).length;sidebarMeta.textContent='S7 modifies : '+total+' · trouves dans 4YOU : '+found+' · identiques a S7 courant : '+synced;if(!rows.length){fileList.innerHTML='<div class="empty">Aucune ligne S7/4YOU ne correspond a ce filtre.</div>';return;}const html=[];for(const row of rows){const active=state.selectedBase===row.base?' active':'';const statusClass=!row.existsInTarget?'status-miss':(row.sameAsBaselineCurrent?'status-ok':'status-warn');const statusText=!row.existsInTarget?'absent dans 4YOU':(row.sameAsBaselineCurrent?'identique au S7 courant':'different de S7');html.push('<div class="file-item'+active+'" data-base="'+escapeAttr(row.base)+'"><span class="dot multi"></span><span class="fname" title="'+escapeAttr(row.base)+'">'+escapeHtml(row.base)+'</span><span class="status-pill '+statusClass+'">'+statusText+'</span><span class="vcnt">'+row.baselineVariants+'/'+row.targetVariants+'</span></div>');}fileList.innerHTML=html.join('');for(const item of fileList.querySelectorAll('.file-item')){item.addEventListener('click',()=>selectCrossCheckBase(item.dataset.base));}}
+async function selectCrossCheckBase(base){state.selectedBase=base;setActiveBaseInList(base);await compareCrossCheckCurrent(base);}
+async function compareCrossCheckCurrent(base){const baselineData=state.folderData.baseline;const targetData=state.folderData.target;const baselineVariants=baselineData.groups[base]||[];const targetVariants=targetData.groups[base]||[];if(!baselineVariants.length){clearDiff();summary.className='show';summary.innerHTML='<span>'+escapeHtml(base)+'</span><span>Introuvable dans le dossier S7</span>';return;}if(!targetVariants.length){clearDiff();summary.className='show';summary.innerHTML='<span>'+escapeHtml(base)+'</span><span>Absent du dossier 4YOU</span>';welcome.style.display='flex';welcome.textContent='Ce fichier modifie existe dans S7 mais est absent de 4YOU.';return;}const leftVariant=baselineVariants[0];const rightVariant=targetVariants[0];state.leftVariantName=leftVariant.name;state.rightVariantName=rightVariant.name;variantControls.className='';const [leftLines,rightLines]=await Promise.all([getProcessedLinesForData(leftVariant.file,baselineData),getProcessedLinesForData(rightVariant.file,targetData)]);renderDiff(leftVariant.name+' (S7 courant)',rightVariant.name+' (4YOU courant)',leftLines,rightLines);updateCompareNavbar();}
+async function selectBase(base){state.selectedBase=base;const variants=state.groups[base]||[];state.leftVariantName=variants[0]?.name||null;state.rightVariantName=getPreferredComparisonVariant(variants,state.leftVariantName)?.name||variants[variants.length-1]?.name||null;setActiveBaseInList(base);renderVariantControls();await compareSelectedBase();}
+function clearDiff(){summary.className='';summary.innerHTML='';compareNavbar.className='';compareStatus.textContent='';variantCount.textContent='';variantControls.className='';diffWrap.style.display='none';welcome.style.display='flex';diffBody.innerHTML='';state.diffBlocks=[];state.currentDiffIdx=-1;updateDiffCounter();}
+function getFileKey(file){return [file.webkitRelativePath||file.name,file.size,file.lastModified].join('::');}
+function setActiveBaseInList(base){for(const row of fileList.querySelectorAll('.file-item')){row.classList.toggle('active',row.dataset.base===base);}}
+function getVisibleBases(){return Array.from(fileList.querySelectorAll('.file-item')).map(row=>row.dataset.base).filter(Boolean);}
+async function stepSelectedBase(direction){const bases=getVisibleBases();if(!bases.length||!state.selectedBase)return;const currentIndex=bases.indexOf(state.selectedBase);if(currentIndex===-1)return;const nextIndex=currentIndex+direction;if(nextIndex<0||nextIndex>=bases.length)return;if(state.crossCheckMode){await selectCrossCheckBase(bases[nextIndex]);return;}await selectBase(bases[nextIndex]);}
+async function stepVariant(direction){if(state.crossCheckMode)return;const variants=state.groups[state.selectedBase]||[];if(variants.length<=1)return;const currentIndex=variants.findIndex(variant=>variant.name===state.rightVariantName);const fallbackIndex=variants.findIndex(variant=>variant.name!==state.leftVariantName);const baseIndex=currentIndex===-1?fallbackIndex:currentIndex;const nextIndex=baseIndex+direction;if(nextIndex<0||nextIndex>=variants.length)return;const nextVariant=variants[nextIndex];if(!nextVariant||nextVariant.name===state.leftVariantName)return;state.rightVariantName=nextVariant.name;rightVariantSelect.value=nextVariant.name;await compareSelectedBase();}
+function updateCompareNavbar(){const bases=getVisibleBases();const baseIndex=bases.indexOf(state.selectedBase);if(state.crossCheckMode){const hasSelection=Boolean(state.selectedBase);if(!hasSelection){compareNavbar.className='';return;}compareNavbar.className='show';compareStatus.textContent=state.selectedBase+' · S7 courant vs 4YOU courant';variantCount.textContent='';prevFileBtn.disabled=baseIndex<=0;nextFileBtn.disabled=baseIndex===-1||baseIndex>=bases.length-1;prevVariantBtn.disabled=true;nextVariantBtn.disabled=true;updateDiffCounter();return;}const variants=state.groups[state.selectedBase]||[];const currentVariantIndex=variants.findIndex(variant=>variant.name===state.rightVariantName);const hasSelection=Boolean(state.selectedBase&&variants.length);if(!hasSelection){compareNavbar.className='';return;}compareNavbar.className='show';compareStatus.textContent=state.leftVariantName&&state.rightVariantName?state.leftVariantName+' vs '+state.rightVariantName:state.selectedBase;variantCount.textContent='';prevFileBtn.disabled=baseIndex<=0;nextFileBtn.disabled=baseIndex===-1||baseIndex>=bases.length-1;const canStepPrev=currentVariantIndex>0&&variants[currentVariantIndex-1]?.name!==state.leftVariantName;const canStepNext=currentVariantIndex!==-1&&currentVariantIndex<variants.length-1;prevVariantBtn.disabled=!canStepPrev;nextVariantBtn.disabled=!canStepNext;updateDiffCounter();}
+function updateDiffCounter(){const counter=document.getElementById('diff-counter');const first=document.getElementById('diff-first');const prev=document.getElementById('diff-prev');const next=document.getElementById('diff-next');const last=document.getElementById('diff-last');if(!counter)return;const n=state.diffBlocks.length;const idx=state.currentDiffIdx;counter.textContent=n===0?'Aucune diff':(idx>=0?(idx+1)+' / '+n:'— / '+n);const noDiff=n===0;first.disabled=noDiff||idx<=0;prev.disabled=noDiff||idx<=0;next.disabled=noDiff||idx>=n-1;last.disabled=noDiff||idx>=n-1;}
+function jumpToDiff(idx){if(!state.diffBlocks.length)return;const clamped=Math.max(0,Math.min(state.diffBlocks.length-1,idx));state.currentDiffIdx=clamped;for(const row of diffBody.querySelectorAll('.row-focused'))row.classList.remove('row-focused');const blockRows=diffBody.querySelectorAll('[data-block="'+clamped+'"]');for(const row of blockRows)row.classList.add('row-focused');if(blockRows.length)blockRows[0].scrollIntoView({behavior:'smooth',block:'center'});updateDiffCounter();}
+function jumpToOccurrence(idx){if(!state.searchOccurrences.length)return;const clamped=Math.max(0,Math.min(state.searchOccurrences.length-1,idx));state.currentOccurrenceIdx=clamped;for(const row of diffBody.querySelectorAll('.row-search-current'))row.classList.remove('row-search-current');const row=state.searchOccurrences[clamped];if(row){row.classList.add('row-search-current');row.scrollIntoView({behavior:'smooth',block:'center'});}updateSearchOccurrenceCounter();}
+function updateSearchOccurrenceCounter(){const n=state.searchOccurrences.length;const idx=state.currentOccurrenceIdx;filterSearchOccurrenceCounter.textContent=n===0?'0 / 0':(idx>=0?(idx+1)+' / '+n:'— / '+n);const fFirst=document.getElementById('filter-search-first');const fPrev=document.getElementById('filter-search-prev');const fNext=document.getElementById('filter-search-next');const fLast=document.getElementById('filter-search-last');if(fFirst){const noOcc=n===0;fFirst.disabled=noOcc||idx<=0;fPrev.disabled=noOcc||idx<=0;fNext.disabled=noOcc||idx>=n-1;fLast.disabled=noOcc||idx>=n-1;}}
+function readTextForData(file,data){const key=getFileKey(file);if(data.textCache[key])return data.textCache[key];const promise=new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||''));reader.onerror=()=>reject(new Error('Impossible de lire '+file.name));reader.readAsText(file,'windows-1252');});data.textCache[key]=promise;return promise;}
+function readText(file){return readTextForData(file,state.folderData[state.activeFolder]);}
+async function baseContainsText(base,needle){const variants=state.groups[base]||[];for(const variant of variants){const text=(await readText(variant.file)).toLowerCase();if(text.includes(needle))return true;}return false;}
+async function baseDiffContainsText(base,needle){const data=state.folderData[state.activeFolder];const variants=data.groups[base]||[];if(variants.length<2)return false;const leftVariant=variants[0];const rightVariant=getPreferredComparisonVariant(variants,leftVariant.name)||variants[variants.length-1];if(!rightVariant||rightVariant.name===leftVariant.name)return false;const [leftLines,rightLines]=await Promise.all([getProcessedLinesForData(leftVariant.file,data),getProcessedLinesForData(rightVariant.file,data)]);const ops=computeEditScript(leftLines,rightLines);for(const op of ops){if(op.t===1&&leftLines[op.l]?.toLowerCase().includes(needle))return true;if(op.t===2&&rightLines[op.r]?.toLowerCase().includes(needle))return true;}return false;}
+function highlightSearchRows(){for(const row of diffBody.querySelectorAll('.row-search-hit')){row.classList.remove('row-search-hit');}for(const row of diffBody.querySelectorAll('.row-search-current')){row.classList.remove('row-search-current');}const needle=state.contentSearchEnabled?state.contentSearchTerm.trim().toLowerCase():'';state.searchOccurrences=[];state.currentOccurrenceIdx=-1;if(!needle){searchOccurrenceNav.style.display='none';filterSearchOccurrenceCounter.textContent='0 / 0';return;}const rows=Array.from(diffBody.querySelectorAll('tr'));const hits=[];for(const row of rows){const left=row.querySelector('.code.left')?.textContent?.toLowerCase()||'';const right=row.querySelector('.code.right')?.textContent?.toLowerCase()||'';if(left.includes(needle)||right.includes(needle)){row.classList.add('row-search-hit');hits.push(row);}}state.searchOccurrences=hits;if(hits.length){searchOccurrenceNav.style.display='flex';state.currentOccurrenceIdx=0;hits[0].classList.add('row-search-current');hits[0].scrollIntoView({behavior:'smooth',block:'center'});updateSearchOccurrenceCounter();}else{searchOccurrenceNav.style.display='none';filterSearchOccurrenceCounter.textContent='0 / 0';}}
+async function getProcessedLinesForData(file,data){const key=getFileKey(file)+'::'+(state.ignoreLineNumbers?'1':'0')+(state.stripLeadingNumbers?'1':'0')+(state.ignoreTrailingSpaces?'1':'0');if(data.processedCache[key])return data.processedCache[key];const text=await readTextForData(file,data);const lines=filterLines(splitLines(text));data.processedCache[key]=lines;return lines;}
+async function getProcessedLines(file){return getProcessedLinesForData(file,state.folderData[state.activeFolder]);}
+async function isModifiedBaseInData(base,data){if(Object.prototype.hasOwnProperty.call(data.diffCache,base))return data.diffCache[base];const variants=data.groups[base]||[];if(variants.length<2){data.diffCache[base]=false;return false;}const current=variants[0].file;for(let index=1;index<variants.length;index+=1){const other=variants[index].file;if(current.size!==other.size&&!state.ignoreLineNumbers&&!state.stripLeadingNumbers){data.diffCache[base]=true;return true;}const [currentLines,otherLines]=await Promise.all([getProcessedLinesForData(current,data),getProcessedLinesForData(other,data)]);if(currentLines.length!==otherLines.length||currentLines.some((line,lineIndex)=>line!==otherLines[lineIndex])){data.diffCache[base]=true;return true;}}data.diffCache[base]=false;return false;}
+async function isModifiedBase(base){return isModifiedBaseInData(base,state.folderData[state.activeFolder]);}
+function splitLines(text){return text.replace(/\r/g,'').split('\n');}
+function filterLines(lines){let filtered=lines;if(state.ignoreLineNumbers){filtered=filtered.filter(line=>!LINE_NUMBER_RE.test(line.trim()));}if(state.stripLeadingNumbers){filtered=filtered.map(line=>line.replace(LEADING_NUMBER_RE,''));}if(state.ignoreTrailingSpaces){filtered=filtered.map(line=>line.trimEnd());}return filtered;}
+function renderVariantControls(){const variants=state.groups[state.selectedBase]||[];if(variants.length<=1){variantControls.className='';updateCompareNavbar();return;}variantControls.className='show';const options=variants.map(variant=>'<option value="'+escapeAttr(variant.name)+'">'+escapeHtml(variant.name)+'</option>').join('');leftVariantSelect.innerHTML=options;rightVariantSelect.innerHTML=options;leftVariantSelect.value=state.leftVariantName||variants[0].name;rightVariantSelect.value=state.rightVariantName||variants[variants.length-1].name;updateCompareNavbar();}
+async function compareSelectedBase(){const variants=state.groups[state.selectedBase]||[];if(!variants.length){clearDiff();return;}if(variants.length===1){variantControls.className='';const lines=await getProcessedLines(variants[0].file);renderSingle(variants[0].name,lines);updateCompareNavbar();return;}renderVariantControls();let leftVariant=variants.find(variant=>variant.name===state.leftVariantName)||variants[0];let rightVariant=variants.find(variant=>variant.name===state.rightVariantName)||variants[variants.length-1];if(leftVariant.name===rightVariant.name){const fallback=variants.find(variant=>variant.name!==leftVariant.name);if(fallback){rightVariant=fallback;state.rightVariantName=fallback.name;rightVariantSelect.value=fallback.name;}}state.leftVariantName=leftVariant.name;state.rightVariantName=rightVariant.name;const [leftLines,rightLines]=await Promise.all([getProcessedLines(leftVariant.file),getProcessedLines(rightVariant.file)]);renderDiff(leftVariant.name,rightVariant.name,leftLines,rightLines);updateCompareNavbar();}
+function highlightChanges(left,right){if(left===right)return{left:escapeHtml(left),right:escapeHtml(right)};const minLen=Math.min(left.length,right.length);let commonPrefix=0,commonSuffix=0;for(;commonPrefix<minLen&&left[commonPrefix]===right[commonPrefix];commonPrefix++);for(;commonSuffix<minLen-commonPrefix&&left[left.length-1-commonSuffix]===right[right.length-1-commonSuffix];commonSuffix++);const lPre=left.slice(0,commonPrefix),lMid=left.slice(commonPrefix,left.length-commonSuffix),lSuf=left.slice(left.length-commonSuffix),rPre=right.slice(0,commonPrefix),rMid=right.slice(commonPrefix,right.length-commonSuffix),rSuf=right.slice(right.length-commonSuffix);return{left:escapeHtml(lPre)+(lMid?'<span class="ch-del">'+escapeHtml(lMid)+'</span>':'')+escapeHtml(lSuf),right:escapeHtml(rPre)+(rMid?'<span class="ch-add">'+escapeHtml(rMid)+'</span>':'')+escapeHtml(rSuf)};}
+function renderSingle(name,lines){headLeft.textContent=name;headRight.textContent='Aucune ancienne version';summary.className='show';summary.innerHTML='<span>Version unique</span><span>0 difference</span>';welcome.style.display='none';diffWrap.style.display='block';const rows=[];for(let i=0;i<lines.length;i+=1){rows.push('<tr class="row-eq"><td class="ln">'+(i+1)+'</td><td class="code left">'+escapeHtml(lines[i])+'</td><td class="ln"></td><td class="code right"></td></tr>');}diffBody.innerHTML=rows.join('');highlightSearchRows();}
+function resetDiffBlocks(){state.diffBlocks=[];state.currentDiffIdx=-1;}
+function computeEditScript(a,b){const n=a.length,m=b.length;if(!n&&!m)return[];const map=new Map();let nid=0;const h=l=>{if(!map.has(l))map.set(l,nid++);return map.get(l);};const la=a.map(h),lb=b.map(h);const max=n+m,off=max;const v=new Int32Array(2*max+2);const trace=[];let done=false;for(let d=0;d<=max&&!done;d++){for(let k=-d;k<=d;k+=2){let x=k===-d||(k!==d&&v[k-1+off]<v[k+1+off])?v[k+1+off]:v[k-1+off]+1;let y=x-k;while(x<n&&y<m&&la[x]===lb[y]){x++;y++;}v[k+off]=x;if(x>=n&&y>=m){done=true;break;}}trace.push(new Int32Array(v));if(!done&&trace.length>5000)break;}if(!done){const ops=[];const mx=Math.max(n,m);for(let i=0;i<mx;i++){if(i<n&&i<m){if(la[i]===lb[i])ops.push({t:0,l:i,r:i});else{ops.push({t:1,l:i});ops.push({t:2,r:i});}}else if(i<n)ops.push({t:1,l:i});else ops.push({t:2,r:i});}return ops;}const ops=[];let x=n,y=m;for(let d=trace.length-1;d>=0;d--){const vs=trace[d],k=x-y;const prevK=k===-d||(k!==d&&vs[k-1+off]<vs[k+1+off])?k+1:k-1;const prevX=vs[prevK+off],prevY=prevX-prevK;while(x>prevX&&y>prevY){x--;y--;ops.push({t:0,l:x,r:y});}if(d>0){if(x>prevX){x--;ops.push({t:1,l:x});}else{y--;ops.push({t:2,r:y});}}}ops.reverse();return ops;}
+function renderDiff(leftName,rightName,leftLines,rightLines){headLeft.textContent=leftName;headRight.textContent=rightName;welcome.style.display='none';diffWrap.style.display='block';resetDiffBlocks();const ops=computeEditScript(leftLines,rightLines);const searchNeedle=state.contentSearchEnabled?state.contentSearchTerm.trim().toLowerCase():'';let searchInDiffFound=false;const rows=[];let add=0,del=0,eq=0;let i=0;while(i<ops.length){const op=ops[i];if(op.t===0){eq++;rows.push(rowHtml('row-eq',op.l+1,leftLines[op.l],op.r+1,rightLines[op.r]));i++;}else{const blockIdx=state.diffBlocks.length;state.diffBlocks.push(rows.length);const dels=[],ins=[];while(i<ops.length&&ops[i].t!==0){if(ops[i].t===1)dels.push(ops[i].l);else ins.push(ops[i].r);i++;}const paired=Math.min(dels.length,ins.length);const dAttr=' data-block="'+blockIdx+'"';let firstRow=true;for(let p=0;p<paired;p++){del++;add++;if(searchNeedle&&(leftLines[dels[p]].toLowerCase().includes(searchNeedle)||rightLines[ins[p]].toLowerCase().includes(searchNeedle))){searchInDiffFound=true;}const hl=highlightChanges(leftLines[dels[p]],rightLines[ins[p]]);rows.push('<tr class="row-del"'+(firstRow?dAttr:'')+' ><td class="ln">'+(dels[p]+1)+'</td><td class="code left modified">'+hl.left+'</td><td class="ln">'+(ins[p]+1)+'</td><td class="code right modified">'+hl.right+'</td></tr>');firstRow=false;}for(let p=paired;p<dels.length;p++){del++;if(searchNeedle&&leftLines[dels[p]].toLowerCase().includes(searchNeedle)){searchInDiffFound=true;}rows.push('<tr class="row-del"'+(firstRow?dAttr:'')+' >'+rowInner(dels[p]+1,leftLines[dels[p]],'','')+'</tr>');firstRow=false;}for(let p=paired;p<ins.length;p++){add++;if(searchNeedle&&rightLines[ins[p]].toLowerCase().includes(searchNeedle)){searchInDiffFound=true;}rows.push('<tr class="row-add"'+(firstRow?dAttr:'')+' >'+rowInner('','',ins[p]+1,rightLines[ins[p]])+'</tr>');firstRow=false;}}}summary.className='show';summary.innerHTML='<span>'+escapeHtml(leftName)+' vs '+escapeHtml(rightName)+'</span><span>'+state.diffBlocks.length+' bloc'+(state.diffBlocks.length===1?'':'s')+' de differences</span><span style="color:#7ee787">+'+add+'</span><span style="color:#ffa198">-'+del+'</span><span>'+eq+' identiques</span>'+(searchNeedle?'<span>Recherche dans les differences : '+(searchInDiffFound?'oui':'non')+'</span>':'');diffBody.innerHTML=rows.join('');highlightSearchRows();if(state.diffBlocks.length>0)jumpToDiff(0);else updateDiffCounter();}
+function rowInner(leftNo,leftText,rightNo,rightText){return '<td class="ln">'+leftNo+'</td><td class="code left">'+escapeHtml(leftText)+'</td><td class="ln">'+rightNo+'</td><td class="code right">'+escapeHtml(rightText)+'</td>';}
+function rowHtml(css,leftNo,leftText,rightNo,rightText){return '<tr class="'+css+'">'+rowInner(leftNo,leftText,rightNo,rightText)+'</tr>';}
+function escapeHtml(value){return String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escapeAttr(value){return escapeHtml(value).replace(/"/g,'&quot;');}
+function csvEscapeCell(value){const s=String(value??'');return '"'+s.replace(/"/g,'""')+'"';}
+function buildCsv(headers,rows){const out=[headers.map(csvEscapeCell).join(',')];for(const row of rows){out.push(headers.map(h=>csvEscapeCell(row[h])).join(','));}return out.join('\n');}
+function buildTxt(headers,rows){const out=[headers.join('\t')];for(const row of rows){out.push(headers.map(h=>String(row[h]??'')).join('\t'));}return out.join('\n');}
+function triggerDownload(filename,content,mime){const blob=new Blob([content],{type:mime});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),0);}
+function showExportModal(){const modal=document.getElementById('export-modal');const cancelBtn=document.getElementById('export-modal-cancel');const confirmBtn=document.getElementById('export-modal-confirm');modal.style.display='flex';cancelBtn.onclick=()=>{modal.style.display='none';};confirmBtn.onclick=async()=>{modal.style.display='none';await executeExport();};modal.onclick=(e)=>{if(e.target===modal)modal.style.display='none';};}
+async function executeExport(){const baselineData=state.folderData.baseline;const targetData=state.folderData.target;if(!Object.keys(baselineData.groups).length||!Object.keys(targetData.groups).length){alert('Chargez d\'abord les deux dossiers (S7 et 4YOU).');return;}const originalMeta=sidebarMeta.textContent;exportListsBtn.disabled=true;sidebarMeta.textContent='Preparation des exports...';try{const checks={s7Full:document.getElementById('export-s7-full').checked,s7Modified:document.getElementById('export-s7-modified').checked,y4Full:document.getElementById('export-4you-full').checked,y4Modified:document.getElementById('export-4you-modified').checked,resume:document.getElementById('export-resume').checked};const versions={s7Full:document.querySelector('input[name="s7-full-version"]:checked')?.value||'current',s7Modified:document.querySelector('input[name="s7-modified-version"]:checked')?.value||'current',y4Full:document.querySelector('input[name="4you-full-version"]:checked')?.value||'current',y4Modified:document.querySelector('input[name="4you-modified-version"]:checked')?.value||'current'};const fileFormat=document.querySelector('input[name="export-file-format"]:checked')?.value||'both';const stamp=nowStamp();let count=0;if(checks.s7Full){sidebarMeta.textContent='Export de tous les programmes S7...';const rows=await getExportRows(baselineData,null,versions.s7Full);exportList('full_S7_list',rows,stamp,{folderLabel:baselineData.label,listLabel:'Liste complete S7',versionMode:versions.s7Full,reportKind:'full'},fileFormat);count++;}if(checks.s7Modified){sidebarMeta.textContent='Export des programmes S7 modifies...';const rows=await getExportRows(baselineData,await getModifiedBaseSet(baselineData),versions.s7Modified);exportList('modified_S7_list',rows,stamp,{folderLabel:baselineData.label,listLabel:'Liste S7 modifies',versionMode:versions.s7Modified,reportKind:'modified'},fileFormat);count++;}if(checks.y4Full){sidebarMeta.textContent='Export de tous les programmes 4YOU...';const rows=await getExportRows(targetData,null,versions.y4Full);exportList('full_4YOU_list',rows,stamp,{folderLabel:targetData.label,listLabel:'Liste complete 4YOU',versionMode:versions.y4Full,reportKind:'full'},fileFormat);count++;}if(checks.y4Modified){sidebarMeta.textContent='Export des programmes 4YOU modifies...';const rows=await getExportRows(targetData,await getModifiedBaseSet(targetData),versions.y4Modified);exportList('modified_4YOU_list',rows,stamp,{folderLabel:targetData.label,listLabel:'Liste 4YOU modifies',versionMode:versions.y4Modified,reportKind:'modified'},fileFormat);count++;}if(checks.resume){sidebarMeta.textContent='Export du resume S7 vs 4YOU...';const resumeRows=await buildResumeTable(baselineData,targetData);exportList('resume_S7_vs_4YOU',resumeRows,stamp,{isResume:true,listLabel:'Resume S7 vs 4YOU'},fileFormat);count++;}const formatLabel=fileFormat==='both'?'CSV + TXT':(fileFormat==='txt'?'TXT':'CSV');sidebarMeta.textContent=`✓ Export termine : ${count} liste(s) telechargee(s) au format ${formatLabel}.`;}catch(err){console.error(err);alert('Echec de l\'export : '+(err&&err.message?err.message:String(err)));sidebarMeta.textContent=originalMeta;}finally{exportListsBtn.disabled=false;}}
+function exportList(name,rows,stamp,options,fileFormat){const isResume=Boolean(options?.isResume);const table=isResume?buildResumeTableRows(rows):buildStandardTableRows(rows,options);const csv=buildCsv(table.headers,table.rows);const txt=buildFixedWidthTxt(table.headers,table.rows);if(fileFormat==='csv'||fileFormat==='both')triggerDownload(name+'_'+stamp+'.csv',csv,'text/csv;charset=utf-8');if(fileFormat==='txt'||fileFormat==='both')triggerDownload(name+'_'+stamp+'.txt',txt,'text/plain;charset=utf-8');}
+function buildStandardTableRows(rows,options){if(options?.reportKind==='modified'){const headers=['Nom de fichier'];const seen=new Set();const formattedRows=[];for(const row of rows){if(seen.has(row.base_name))continue;seen.add(row.base_name);formattedRows.push({'Nom de fichier':row.base_name});}return{headers,rows:formattedRows};}const headers=['Dossier','Nom de fichier'];const formattedRows=rows.map(row=>({'Dossier':row.folder_path||options?.folderLabel||'', 'Nom de fichier':row.file_name||row.exported_variant||row.base_name}));return{headers,rows:formattedRows};}
+function buildResumeTableRows(rows){const headers=['Programme','Present dans S7','Present dans 4YOU','Modifie dans S7','Modifie dans 4YOU','S7 vs 4YOU change','Statut','Nombre de variantes S7','Nombre de variantes 4YOU','Note'];const formattedRows=rows.map(row=>({'Programme':row.base_name,'Present dans S7':row.in_S7,'Present dans 4YOU':row.in_4YOU,'Modifie dans S7':row.modified_in_S7,'Modifie dans 4YOU':row.modified_in_4YOU,'S7 vs 4YOU change':row.changed_between_S7_and_4YOU,'Statut':formatResumeStatus(row.status),'Nombre de variantes S7':row.baseline_variant_count,'Nombre de variantes 4YOU':row.target_variant_count,'Note':buildResumeNote(row)}));return{headers,rows:formattedRows};}
+function buildFixedWidthTxt(headers,rows){const widths=headers.map(header=>{let max=String(header).length;for(const row of rows){const value=String(row[header]??'');if(value.length>max)max=value.length;}return max;});const pad=(value,width)=>{const text=String(value??'');return text+' '.repeat(Math.max(0,width-text.length));};const headerLine=headers.map((header,index)=>pad(header,widths[index])).join(' | ');const separator=widths.map(width=>'-'.repeat(width)).join('-+-');const body=rows.map(row=>headers.map((header,index)=>pad(row[header],widths[index])).join(' | '));return [headerLine,separator,...body].join('\n');}
+function formatResumeStatus(status){switch(status){case 'missing_in_4YOU':return 'Absent dans 4YOU';case 'same_update':return 'Meme mise a jour';case 'different':return 'Contenu different';case 'only_modified_in_4YOU':return 'Modifie uniquement dans 4YOU';default:return 'Hors perimetre';}}
+function buildResumeNote(row){if(row.status==='missing_in_4YOU')return 'Modifie dans S7 mais le programme est absent dans 4YOU.';if(row.status==='same_update')return 'Les versions courantes S7 et 4YOU sont identiques.';if(row.status==='different')return 'Les versions courantes S7 et 4YOU sont differentes.';if(row.status==='only_modified_in_4YOU')return 'Le programme a des variantes uniquement cote 4YOU.';return 'Aucune action requise pour cette ligne.';}
+function nowStamp(){const d=new Date();const pad=n=>String(n).padStart(2,'0');return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'_'+pad(d.getHours())+pad(d.getMinutes())+pad(d.getSeconds());}
+async function getModifiedBaseSet(data){const bases=Object.keys(data.groups).sort();const flags=await Promise.all(bases.map(base=>isModifiedBaseInData(base,data)));const out=new Set();for(let i=0;i<bases.length;i+=1){if(flags[i])out.add(bases[i]);}return out;}
+async function getExportRows(data,filterSet,versionMode){const bases=Object.keys(data.groups).sort();let filtered=bases;if(filterSet){filtered=bases.filter(b=>filterSet.has(b));}const rows=[];for(const base of filtered){const variants=data.groups[base]||[];if(!variants.length)continue;const selectedVariants=versionMode==='current'?[variants[0]]:variants;for(const variant of selectedVariants){const relativePath=(variant.file.webkitRelativePath||variant.file.name).replace(/\\/g,'/');const parts=relativePath.split('/');const folderPath=parts.slice(0,-1).join('/');rows.push({base_name:base,file_name:variant.name,folder_path:folderPath,exported_variant:variant.name});}}return rows;}
+async function buildResumeTable(baselineData,targetData){const unionBases=Array.from(new Set([...Object.keys(baselineData.groups),...Object.keys(targetData.groups)])).sort();const [baselineModifiedSet,targetModifiedSet]=[await getModifiedBaseSet(baselineData),await getModifiedBaseSet(targetData)];const rows=[];for(const base of unionBases){const inS7=Boolean(baselineData.groups[base]);const in4YOU=Boolean(targetData.groups[base]);const modifiedInS7=inS7&&baselineModifiedSet.has(base);const modifiedIn4YOU=in4YOU&&targetModifiedSet.has(base);let changedBetweenS7And4YOU='Non verifie';let status='not_in_scope';if(modifiedInS7){if(!in4YOU){status='missing_in_4YOU';changedBetweenS7And4YOU='Non disponible';}else{const same=await areCurrentVersionsEqual(base,baselineData,targetData);changedBetweenS7And4YOU=same?'Non':'Oui';status=same?'same_update':'different';}}else if(modifiedIn4YOU){status='only_modified_in_4YOU';changedBetweenS7And4YOU='Non verifie';}rows.push({base_name:base,in_S7:inS7?'Oui':'Non',in_4YOU:in4YOU?'Oui':'Non',modified_in_S7:modifiedInS7?'Oui':'Non',modified_in_4YOU:modifiedIn4YOU?'Oui':'Non',changed_between_S7_and_4YOU:changedBetweenS7And4YOU,status,baseline_variant_count:inS7?baselineData.groups[base].length:0,target_variant_count:in4YOU?targetData.groups[base].length:0});}return rows;}
+syncActiveFolderData();
+updateFolderChips();
+updateFolderButtons();
+syncContentSearchControls();
+</script>
+</body>
+</html>
