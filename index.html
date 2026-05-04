@@ -9,14 +9,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --ink: #11243d;
-      --muted: #5c6d82;
+      --ink: #002752;
+      --muted: #697076;
       --paper: #ffffff;
-      --line: #dce4ee;
-      --brand-cyan: #00a1e0;
-      --brand-cyan-deep: #008bbf;
-      --brand-green: #7ac143;
-      --brand-green-deep: #6eaf3d;
+      --line: #E1E3E8;
+      --brand-primary: #4D1C87;
+      --brand-primary-2: #7E00B5;
+      --brand-accent: #CF022B;
+      --brand-cta: #2F9E44;
+      --brand-cta-hover: #237A35;
+      --brand-highlight: #FFCA23;
       --surface: #ffffff;
       --shadow: 0 10px 24px rgba(16, 41, 70, 0.08);
     }
@@ -60,7 +62,7 @@
       width: 30px;
       height: 30px;
       border-radius: 8px;
-      background: linear-gradient(135deg, var(--brand-cyan) 0%, var(--brand-cyan) 52%, var(--brand-green) 52%, var(--brand-green) 100%);
+      background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary) 52%, var(--brand-cta) 52%, var(--brand-cta) 100%);
       box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
       position: relative;
       flex: 0 0 auto;
@@ -95,30 +97,15 @@
       font-weight: 600;
     }
 
-    .top-nav {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .top-nav span {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #3e5875;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      border: 1px solid #d7e4f1;
-      border-radius: 999px;
-      padding: 5px 10px;
-      background: #ffffff;
-    }
-
     .shell {
       max-width: 1220px;
       margin: 0 auto;
       padding: 22px 18px 34px;
+    }
+
+    .hero--single {
+      display: block;
+      margin-bottom: 24px;
     }
 
     .hero {
@@ -126,6 +113,10 @@
       grid-template-columns: 1.15fr 0.85fr;
       gap: 14px;
       margin-bottom: 14px;
+    }
+
+    .hero.hero--single {
+      display: block;
     }
 
     .hero-panel {
@@ -157,24 +148,24 @@
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: var(--brand-cyan);
+      background: var(--brand-accent);
     }
 
     h1 {
       margin: 13px 0 10px;
       font-family: "Montserrat", sans-serif;
-      font-size: clamp(1.7rem, 3.4vw, 2.6rem);
-      line-height: 1.15;
+      font-size: clamp(1.1rem, 2vw, 1.6rem);
+      line-height: 1.2;
       letter-spacing: -0.01em;
-      max-width: 20ch;
+      max-width: none;
     }
 
     .lead {
       margin: 0;
       color: var(--muted);
-      font-size: 1.02rem;
+      font-size: 0.88rem;
       line-height: 1.55;
-      max-width: 66ch;
+      max-width: none;
     }
 
     .hero-metrics {
@@ -194,43 +185,6 @@
       color: #334f6f;
     }
 
-    .launch-box {
-      display: grid;
-      gap: 10px;
-    }
-
-    .launch-box h2 {
-      margin: 0;
-      font-family: "Montserrat", sans-serif;
-      font-size: 1.05rem;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      color: #0f2f51;
-    }
-
-    .launch-box p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.45;
-    }
-
-    .launch-select {
-      width: 100%;
-      border: 1px solid #c6dbee;
-      border-radius: 12px;
-      padding: 11px 12px;
-      font-size: 0.95rem;
-      background: #fff;
-      color: #163352;
-      font-family: inherit;
-    }
-
-    .launch-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
     button {
       border: 1px solid transparent;
       border-radius: 11px;
@@ -248,13 +202,13 @@
     }
 
     .btn-main {
-      background: var(--brand-cyan);
+      background: var(--brand-primary);
       color: #fff;
       flex: 1 1 160px;
     }
 
     .btn-main:hover {
-      background: var(--brand-cyan-deep);
+      background: var(--brand-primary-2);
     }
 
     .btn-alt {
@@ -262,12 +216,6 @@
       background: #fff;
       color: #244464;
       flex: 1 1 160px;
-    }
-
-    .hint {
-      margin: 0;
-      font-size: 0.8rem;
-      color: #5b7390;
     }
 
     .section-head {
@@ -319,7 +267,7 @@
       left: 0;
       right: 0;
       height: 3px;
-      background: var(--brand-cyan);
+      background: linear-gradient(90deg, var(--brand-primary) 0%, var(--brand-cta) 100%);
     }
 
     .card-head {
@@ -339,8 +287,8 @@
 
     .tag {
       border: 1px solid #d8e2ec;
-      background: #ffffff;
-      color: #4d6681;
+      background: #fff7ef;
+      color: #c67233;
       border-radius: 999px;
       padding: 4px 8px;
       font-size: 0.7rem;
@@ -379,20 +327,6 @@
       flex-wrap: wrap;
     }
 
-    .note {
-      margin-top: 14px;
-      border: 1px solid #dce5ee;
-      border-radius: 12px;
-      background: #ffffff;
-      padding: 12px 14px;
-      color: #315171;
-      line-height: 1.45;
-      font-size: 0.9rem;
-      box-shadow: 0 6px 12px rgba(13, 42, 72, 0.05);
-    }
-
-    .note strong { color: #145986; }
-
     footer {
       margin-top: 16px;
       text-align: center;
@@ -426,55 +360,24 @@
           <div class="brand-sub">Comparators Workspace</div>
         </div>
       </div>
-      <nav class="top-nav" aria-label="Sections">
-        <span>Services</span>
-        <span>Solutions</span>
-        <span>Resources</span>
-      </nav>
+
     </div>
   </header>
 
   <main class="shell">
-    <section class="hero">
+    <section class="hero hero--single">
       <article class="hero-panel">
-        <span class="label"><span class="label-dot"></span> Portail comparateurs</span>
         <h1>Accélérez les analyses de versions sur une interface unifiée</h1>
         <p class="lead">
           Choisissez un comparateur métier, ouvrez-le instantanément et gardez un parcours fluide entre
           programmes, scripts, traitements et dossiers. Le portail est optimisé pour une utilisation
           opérationnelle quotidienne.
         </p>
-        <div class="hero-metrics">
-          <span class="metric">5 applications intégrées</span>
-          <span class="metric">Accès direct en 1 clic</span>
-          <span class="metric">Desktop + mobile</span>
-        </div>
       </article>
-
-      <aside class="hero-panel launch-box">
-        <h2>Ouverture rapide</h2>
-        <p>Sélectionnez une application et lancez-la.</p>
-        <select id="comparator-select" class="launch-select" aria-label="Comparateur a ouvrir"></select>
-        <div class="launch-row">
-          <button id="open-main" class="btn-main" type="button">Ouvrir</button>
-          <button id="open-new" class="btn-alt" type="button">Nouvel onglet</button>
-        </div>
-        <p id="selection-hint" class="hint"></p>
-      </aside>
     </section>
 
-    <div class="section-head">
-      <h3>Nos applications</h3>
-      <span>Comparaison structurée de vos actifs S7 / 4YOU</span>
-    </div>
     <section id="cards" class="grid" aria-label="Liste des comparateurs"></section>
 
-    <section class="note">
-      <strong>Note pratique:</strong>
-      certains comparateurs incluent un mode serveur local via start.bat.
-      Les boutons du portail ouvrent les pages HTML directement. Pour le mode serveur, lancez le start.bat
-      de l'application concernée puis utilisez son URL locale.
-    </section>
 
     <footer>Sopra HR Software - Comparators Workspace</footer>
   </main>
@@ -486,84 +389,48 @@
         name: "Comparateur de dossiers",
         description: "Compare deux dossiers entiers et détecte manquants, modifiés et identiques.",
         type: "Fichiers",
-        localPath: "Folder comparator/index.html",
-        runHint: "start.bat disponible",
-        serverUrl: null
+        localPath: "Folder comparator/index.html"
       },
       {
         id: "process",
-        name: "Comparateur de processus OCR",
-        description: "Vérifie des identifiants dans des captures d'écran avec OCR intégré.",
-        type: "OCR",
-        localPath: "Process comparator/index.html",
-        runHint: "100% navigateur",
-        serverUrl: null
+        name: "Comparateur de process",
+        description: "Vérifie des identifiants dans des captures d'écran avec lecture intégrée.",
+        type: "Process",
+        localPath: "Process comparator/index.html"
       },
       {
         id: "program",
         name: "Comparateur de programmes",
         description: "Analyse détaillée des programmes S7 et 4YOU avec diff avancé.",
         type: "Programmes",
-        localPath: "Program comparator/index.html",
-        runHint: "start.bat disponible",
-        serverUrl: "http://localhost:8090"
+        localPath: "Program comparator/index.html"
       },
       {
         id: "script",
         name: "Comparateur de scripts",
         description: "Comparaison complète des scripts shl_S7 et shl_4YOU avec variantes.",
         type: "Scripts",
-        localPath: "Script Comparator/index.html",
-        runHint: "start.bat disponible",
-        serverUrl: "http://localhost:8091"
+        localPath: "Script Comparator/index.html"
       },
       {
         id: "traitement",
         name: "Comparateur de traitements",
         description: "Visualisation 2 ou 3 versions en parallèle avec synchronisation des écarts.",
         type: "Traitement",
-        localPath: "Traitement Comparator/three_way_comparator.html",
-        runHint: "three-way compare",
-        serverUrl: null
+        localPath: "Traitement Comparator/three_way_comparator.html"
       }
     ];
 
     const cardsHost = document.getElementById("cards");
-    const select = document.getElementById("comparator-select");
-    const hint = document.getElementById("selection-hint");
-    const canUseLocalhost =
-      window.location.protocol === "file:" ||
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1";
-
-    function optionLabel(item) {
-      return item.name + " - " + item.type;
-    }
 
     function pathToUrl(path) {
       return encodeURI(path);
     }
 
-    function buildSelect() {
-      comparators.forEach((item, index) => {
-        const opt = document.createElement("option");
-        opt.value = item.id;
-        opt.textContent = optionLabel(item);
-        if (index === 0) {
-          opt.selected = true;
-        }
-        select.appendChild(opt);
-      });
-      updateHint();
-    }
 
     function createCard(item) {
       const card = document.createElement("article");
       card.className = "card";
-
-      const metaServer = item.serverUrl
-        ? "URL serveur: " + item.serverUrl
-        : "URL serveur: non requise";
 
       card.innerHTML = `
         <div class="card-head">
@@ -571,14 +438,9 @@
           <span class="tag">${item.type}</span>
         </div>
         <p>${item.description}</p>
-        <div class="card-meta">
-          <span class="chip">${item.runHint}</span>
-          <span class="chip">${metaServer}</span>
-        </div>
         <div class="card-actions">
           <button class="btn-main" type="button" data-action="open" data-id="${item.id}">Ouvrir</button>
           <button class="btn-alt" type="button" data-action="open-new" data-id="${item.id}">Nouvel onglet</button>
-          ${item.serverUrl && canUseLocalhost ? `<button class="btn-alt" type="button" data-action="server" data-id="${item.id}">Ouvrir localhost</button>` : ""}
         </div>
       `;
 
@@ -589,15 +451,6 @@
       comparators.forEach(createCard);
     }
 
-    function getSelectedComparator() {
-      return comparators.find(c => c.id === select.value) || comparators[0];
-    }
-
-    function updateHint() {
-      const chosen = getSelectedComparator();
-      const serverText = chosen.serverUrl && canUseLocalhost ? " | localhost: " + chosen.serverUrl : "";
-      hint.textContent = "Fichier: " + chosen.localPath + serverText;
-    }
 
     function openComparator(item, newTab) {
       const url = pathToUrl(item.localPath);
@@ -607,23 +460,6 @@
         window.location.href = url;
       }
     }
-
-    function openServer(item) {
-      if (!item.serverUrl) {
-        return;
-      }
-      window.open(item.serverUrl, "_blank", "noopener");
-    }
-
-    document.getElementById("open-main").addEventListener("click", () => {
-      openComparator(getSelectedComparator(), false);
-    });
-
-    document.getElementById("open-new").addEventListener("click", () => {
-      openComparator(getSelectedComparator(), true);
-    });
-
-    select.addEventListener("change", updateHint);
 
     cardsHost.addEventListener("click", (event) => {
       const button = event.target.closest("button[data-action]");
@@ -643,13 +479,8 @@
       if (button.dataset.action === "open-new") {
         openComparator(selected, true);
       }
-
-      if (button.dataset.action === "server") {
-        openServer(selected);
-      }
     });
 
-    buildSelect();
     buildCards();
   </script>
 </body>

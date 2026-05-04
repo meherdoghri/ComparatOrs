@@ -6,15 +6,15 @@
   <title>Comparateur de Traitements</title>
   <style>
     :root {
-      --bg: #f2f5fb;
+      --bg: #f7f7f7;
       --panel: #ffffff;
-      --panel2: #f7f9fd;
-      --border: #d8e0ef;
-      --text: #1f2937;
-      --muted: #667085;
-      --accent: #0f62fe;
-      --menu: #0b2545;
-      --menuText: #e8eefc;
+      --panel2: #f7f7f7;
+      --border: #E1E3E8;
+      --text: #002752;
+      --muted: #697076;
+      --accent: #2F9E44;
+      --menu: #4D1C87;
+      --menuText: #ffffff;
       --line: #d8e0ef;
       --diff: #7c2d12;
       --diff-soft: #fff6e7;
@@ -31,7 +31,7 @@
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      background: linear-gradient(180deg,#f4f7fd 0%,#eef3fb 100%);
+      background: #f8f8f8;
       color: var(--text);
       font-family: "IBM Plex Sans","Trebuchet MS",Verdana,sans-serif;
       font-size: 13px;
@@ -94,7 +94,7 @@
       height: 34px;
       padding: 0 14px;
       border: 1px solid #b9c7e6;
-      background: #1f6feb;
+      background: #2F9E44;
       color: #fff;
       border-radius: 8px;
       cursor: pointer;
@@ -102,7 +102,17 @@
       font: inherit;
       font-weight: 600;
     }
-    .btn:hover { background: #0f62fe; }
+    .btn:hover { background: #237A35; }
+
+    #clearBtn {
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+      color: #fff !important;
+      border: 1px solid #b91c1c !important;
+    }
+
+    #clearBtn:hover {
+      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
+    }
     .btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
@@ -325,7 +335,7 @@
       width: 26px;
       height: 26px;
       border-radius: 7px;
-      background: linear-gradient(135deg, #00a1e0 0%, #00a1e0 50%, #7ac143 50%, #7ac143 100%);
+      background: linear-gradient(135deg, #4D1C87 0%, #7E00B5 52%, #F47617 52%, #CF022B 100%);
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.55);
       position: relative;
     }
@@ -342,20 +352,19 @@
     .back-link {
       color: #fff;
       text-decoration: none;
-      border: 1px solid #00a1e0;
+      border: 1px solid #2F9E44;
       border-radius: 999px;
       padding: 6px 12px;
       font-size: 12px;
       font-weight: 700;
-      background: #00a1e0;
+      background: #2F9E44;
     }
-    .back-link:hover { background: #008cc4; }
+    .back-link:hover { background: #237A35; }
   </style>
 </head>
 <body>
   <div class="app-menu" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;background:#fff;color:#0b2545;border-bottom:1px solid #dce5f3;box-shadow:0 2px 10px rgba(11,37,69,.08);position:sticky;top:0;z-index:20">
     <div class="brand-wrap"><span class="logo-mark" aria-hidden="true"></span><span class="menu-brand">Sopra HR Software - Comparators</span></div>
-    <a class="back-link" href="../index.html">Retour au portail</a>
     <div class="menu-help" style="position:relative;display:flex;align-items:center">
       <button class="menu-help-btn" type="button" style="border:1px solid #c6dbee;background:#f1f8ff;color:#17375a;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;cursor:help;letter-spacing:.2px;font:inherit;font-weight:700">Comment ca marche ?</button>
       <div class="menu-help-popover" style="position:absolute;top:calc(100% + 8px);right:0;width:min(460px,86vw);padding:14px;background:#fff;border:1px solid #c9d6ee;border-radius:10px;box-shadow:0 14px 30px rgba(8,35,77,.24);color:#1f2937;opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .18s ease,transform .18s ease;z-index:30">
@@ -370,6 +379,7 @@
         </ol>
       </div>
     </div>
+    <a class="back-link" href="../index.html">Retour au portail</a>
   </div>
   <style>.menu-help:hover .menu-help-popover,.menu-help:focus-within .menu-help-popover{opacity:1!important;transform:translateY(0)!important;pointer-events:auto!important}</style>
   <div class="top">
@@ -397,7 +407,7 @@
     <div class="actions">
       <button id="compareBtn" class="btn" disabled>Comparer</button>
       <button id="checkDeltaBtn" class="btn" type="button" disabled style="background:#0a5c36;border-color:#86d39f;" title="Disponible uniquement en mode 3 fichiers">Verifier le delta dans V3</button>
-      <button id="clearBtn" class="btn" type="button" style="background:#f4f8ff;color:#244776;border:1px solid #c7d8f6;">Effacer</button>
+      <button id="clearBtn" class="btn" type="button">Effacer</button>
       <span id="verdict" class="verdict"></span>
     </div>
     <div class="row2">

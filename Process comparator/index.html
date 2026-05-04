@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Comparateur de Processus OCR</title>
+  <title>Comparateur de Process</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     :root {
-      --bg: #f2f5fb;
-      --ink: #1f2937;
-      --muted: #667085;
+      --bg: #f7f7f7;
+      --ink: #002752;
+      --muted: #697076;
       --card: #ffffff;
-      --line: #d8e0ef;
-      --accent: #0f62fe;
-      --accent-2: #f4f8ff;
+      --line: #E1E3E8;
+      --accent: #2F9E44;
+      --accent-2: #f7f7f7;
       --ok: #166534;
       --warn: #9a6700;
       --bad: #9f1239;
@@ -30,7 +30,7 @@
       min-height: 100vh;
       color: var(--ink);
       font-family: "IBM Plex Sans", "Trebuchet MS", Verdana, sans-serif;
-      background: linear-gradient(180deg,#f4f7fd 0%,#eef3fb 100%);
+      background: #f8f8f8;
     }
 
     .page {
@@ -45,7 +45,7 @@
     }
 
     .hero {
-      background: linear-gradient(135deg, #ffffff 0%, #f4f8ff 100%);
+      background: #ffffff;
       border: 1px solid var(--line);
       border-radius: 18px;
       padding: 1.1rem;
@@ -225,7 +225,7 @@
 
     button {
       border: 1px solid #b9c7e6;
-      background: #1f6feb;
+      background: #2F9E44;
       color: #f8fafc;
       border-radius: 10px;
       padding: 0.58rem 0.88rem;
@@ -235,13 +235,23 @@
       transition: transform 140ms ease, filter 140ms ease;
     }
 
-    button:hover { transform: translateY(-1px); background: #0f62fe; filter: none; }
+    button:hover { transform: translateY(-1px); background: #237A35; filter: none; }
     button:disabled { cursor: not-allowed; opacity: 0.55; transform: none; }
 
     .btn-secondary {
       border-color: #c7d8f6;
-      background: #f4f8ff;
-      color: #244776;
+      background: #fff;
+      color: #4D1C87;
+    }
+
+    #clearBtn {
+      border-color: #b91c1c;
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+      color: #fff;
+    }
+
+    #clearBtn:hover {
+      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
     }
 
     .stats {
@@ -444,7 +454,7 @@
       width: 26px;
       height: 26px;
       border-radius: 7px;
-      background: linear-gradient(135deg, #00a1e0 0%, #00a1e0 50%, #7ac143 50%, #7ac143 100%);
+      background: linear-gradient(135deg, #4D1C87 0%, #7E00B5 52%, #F47617 52%, #CF022B 100%);
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.55);
       position: relative;
     }
@@ -465,41 +475,41 @@
     .back-link {
       color: #fff;
       text-decoration: none;
-      border: 1px solid #00a1e0;
+      border: 1px solid #2F9E44;
       border-radius: 999px;
       padding: 6px 12px;
       font-size: 12px;
       font-weight: 700;
-      background: #00a1e0;
+      background: #2F9E44;
     }
 
-    .back-link:hover { background: #008cc4; }
+    .back-link:hover { background: #237A35; }
   </style>
 </head>
 <body>
   <nav class="app-menu">
     <div class="brand-wrap"><span class="logo-mark" aria-hidden="true"></span><span class="menu-brand">Sopra HR Software - Comparators</span></div>
-    <a class="back-link" href="../index.html">Retour au portail</a>
     <div class="menu-help" style="position:relative;display:flex;align-items:center">
       <button type="button" style="border:1px solid #c6dbee;background:#f1f8ff;color:#17375a;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;cursor:help;letter-spacing:.2px;font-family:inherit">Comment ca marche ?</button>
       <div class="menu-help-popover" style="position:absolute;top:calc(100% + 8px);right:0;width:min(460px,86vw);padding:14px;background:#fff;border:1px solid #c9d6ee;border-radius:10px;box-shadow:0 14px 30px rgba(8,35,77,.24);color:#1f2937;opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .18s ease,transform .18s ease;z-index:60">
         <h2 style="margin:0 0 8px 0;font-size:14px;color:#0b2545">Guide rapide pour nouveau utilisateur</h2>
-        <p style="margin:0 0 8px 0;color:#4f5f7a;font-size:12px;line-height:1.45">Cet outil verifie si des identifiants de processus sont presents dans des captures d'ecran, meme avec des erreurs OCR.</p>
+        <p style="margin:0 0 8px 0;color:#4f5f7a;font-size:12px;line-height:1.45">Cet outil verifie si des identifiants de process sont presents dans des captures d'ecran, meme si la lecture comporte des erreurs.</p>
         <ol style="margin:0;padding-left:18px;color:#1f2937;font-size:12px;line-height:1.5">
           <li>Collez vos captures d'ecran dans la zone prevue (Ctrl+V).</li>
           <li>Entrez la liste des identifiants a verifier (un par ligne).</li>
-          <li>Ajustez le seuil OCR si necessaire (0.85 recommande).</li>
+          <li>Ajustez le seuil de lecture si necessaire (0.85 recommande).</li>
           <li>Cliquez sur "Lancer la verification" pour lancer l'analyse.</li>
-          <li>Les resultats indiquent si chaque identifiant est trouve, trouve par OCR ou manquant.</li>
+          <li>Les resultats indiquent si chaque identifiant est trouve, trouve par lecture ou manquant.</li>
         </ol>
       </div>
     </div>
+    <a class="back-link" href="../index.html">Retour au portail</a>
   </nav>
     <style>.menu-help:hover .menu-help-popover,.menu-help:focus-within .menu-help-popover{opacity:1!important;transform:translateY(0)!important;pointer-events:auto!important}</style>
   <main class="page">
     <section class="hero">
-      <h1>Comparateur de Processus OCR</h1>
-      <p>Collez une ou plusieurs captures avec Ctrl+V, ajoutez votre liste d'identifiants de processus, puis verifiez si chaque capture contient bien les memes identifiants, meme avec des erreurs OCR.</p>
+      <h1>Comparateur de Process</h1>
+      <p>Collez une ou plusieurs captures avec Ctrl+V, ajoutez votre liste d'identifiants de process, puis verifiez si chaque capture contient bien les memes identifiants, meme si la lecture comporte des erreurs.</p>
     </section>
 
     <section class="grid">
@@ -530,7 +540,7 @@ EF456789"></textarea>
         </div>
 
         <div class="field">
-          <label for="fuzzyThreshold">Seuil de correspondance OCR (0.60 a 1.00)</label>
+          <label for="fuzzyThreshold">Seuil de correspondance process (0.60 a 1.00)</label>
           <input id="fuzzyThreshold" type="text" value="0.85" />
         </div>
 
@@ -556,7 +566,7 @@ EF456789"></textarea>
           </div>
         </div>
 
-        <p class="foot">Conseil: la qualite OCR est meilleure quand le texte de la capture est net et assez grand. Cette application utilise Tesseract.js dans le navigateur et necessite internet au premier lancement pour charger le modele OCR.</p>
+        <p class="foot">Conseil: la lecture est meilleure quand le texte de la capture est net et assez grand. Cette application utilise Tesseract.js dans le navigateur et necessite internet au premier lancement pour charger le modele.</p>
       </article>
 
       <article class="card">
@@ -1021,7 +1031,7 @@ EF456789"></textarea>
           return '<div><span class="status-found">TROUVE</span></div>';
         }
         if (row.found) {
-          return '<div><span class="status-found-ocr">TROUVE OCR</span></div>';
+          return '<div><span class="status-found-ocr">TROUVE PROCESS</span></div>';
         }
         return '<div><span class="status-missing">MANQUANT</span></div>';
       }).join('');
@@ -1094,13 +1104,13 @@ EF456789"></textarea>
 
         metaBox.textContent =
           "Seuil=" + threshold.toFixed(2) +
-          " | Candidats OCR=" + ocrCandidates.size +
+          " | Candidats process=" + ocrCandidates.size +
           " | Elements=" + rows.length;
 
         if (missingCount === 0) {
           setStatus("ok", "Parfait: tous les identifiants sont presents dans les captures.");
         } else if (foundCount === 0) {
-          setStatus("bad", "Aucun identifiant n'a correspondu. Cela signifie souvent que l'OCR a mal lu les IDs; essayez des captures plus nettes.");
+          setStatus("bad", "Aucun identifiant n'a correspondu. Cela signifie souvent que la lecture a mal interprete les IDs; essayez des captures plus nettes.");
         } else {
           setStatus("warn", "Resultat partiel: " + foundCount + " ID trouves, " + missingCount + " manquants.");
         }
