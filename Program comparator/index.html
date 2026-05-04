@@ -9,6 +9,11 @@
 *{box-sizing:border-box}html,body{height:100%;margin:0}body{display:flex;flex-direction:column;background:linear-gradient(180deg,#f4f7fd 0%,#eef3fb 100%);color:var(--text);font:13px/1.4 "IBM Plex Sans","Trebuchet MS",Verdana,sans-serif}
 .app-menu{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;background:linear-gradient(90deg,#0b2545 0%,#163b6c 100%);color:var(--menuText);border-bottom:1px solid #244a7f}
 .menu-brand{font-size:15px;font-weight:700;letter-spacing:.2px}
+.brand-wrap{display:flex;align-items:center;gap:10px}
+.logo-mark{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#0b6bcb 0%,#0b6bcb 50%,#27a4f2 50%,#27a4f2 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.55);position:relative}
+.logo-mark:after{content:"";position:absolute;width:10px;height:10px;top:8px;left:8px;border-radius:3px;background:#fff}
+.back-link{color:var(--menuText);text-decoration:none;border:1px solid rgba(232,238,252,.36);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;background:rgba(255,255,255,.08)}
+.back-link:hover{background:rgba(255,255,255,.2)}
 .menu-help{position:relative;display:flex;align-items:center}
 .menu-help-btn{border:1px solid rgba(232,238,252,.36);background:rgba(255,255,255,.08);color:var(--menuText);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;cursor:help;letter-spacing:.2px}
 .menu-help-btn:hover,.menu-help-btn:focus-visible{background:rgba(255,255,255,.2);outline:none}
@@ -88,7 +93,8 @@ th{position:sticky;top:0;background:#f7f9fd;color:#4f5f7a;text-align:left;z-inde
 </head>
 <body>
 <div class="app-menu">
-  <div class="menu-brand">Comparateur de programmes Pro</div>
+  <div class="brand-wrap"><span class="logo-mark" aria-hidden="true"></span><div class="menu-brand">ComparatOrs Hub</div></div>
+  <a class="back-link" href="../index.html">Retour au portail</a>
   <div class="menu-help">
     <button class="menu-help-btn" type="button" aria-label="Afficher l'aide rapide">Comment ca marche ?</button>
     <div class="menu-help-popover" role="note" aria-live="polite">
