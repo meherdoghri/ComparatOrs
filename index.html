@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CACID - Portail des comparateurs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #17253a;
+      --muted: #516079;
+      --paper: #f6f8fb;
+      --card: #ffffff;
+      --line: #d5deea;
+      --brand: #0b6bcb;
+      --brand-deep: #084a8c;
+      --accent: #f97316;
+      --good: #166534;
+      --glow-a: #dbeafe;
+      --glow-b: #ffedd5;
+      --shadow-soft: 0 12px 30px rgba(18, 52, 92, 0.12);
+      --shadow-strong: 0 18px 38px rgba(9, 43, 83, 0.22);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Manrope", "Segoe UI", Tahoma, sans-serif;
+      background:
+        radial-gradient(circle at 8% -10%, var(--glow-a) 0%, transparent 36%),
+        radial-gradient(circle at 92% 0%, var(--glow-b) 0%, transparent 32%),
+        linear-gradient(180deg, #f8fbff 0%, #f2f6fb 100%);
+      min-height: 100vh;
+    }
+
+    .shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px 40px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+
+    .hero-main,
+    .hero-launch {
+      background: linear-gradient(165deg, #ffffff 0%, #f8fbff 85%);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+      animation: slide-up 480ms ease-out;
+    }
+
+    .hero-main::after {
+      content: "";
+      position: absolute;
+      right: -80px;
+      top: -90px;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(11, 107, 203, 0.16) 0%, rgba(11, 107, 203, 0) 70%);
+      pointer-events: none;
+    }
+
+    .hero-main {
+      padding: 22px 22px 20px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #b7cdee;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--brand-deep);
+      background: #edf4ff;
+      letter-spacing: 0.02em;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #14b8a6;
+    }
+
+    h1 {
+      margin: 12px 0 8px;
+      font-family: "Sora", "Trebuchet MS", sans-serif;
+      font-size: clamp(1.5rem, 3.2vw, 2.25rem);
+      line-height: 1.2;
+      letter-spacing: 0.01em;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: 70ch;
+    }
+
+    .hero-stats {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pill {
+      border: 1px solid #d8e5f8;
+      background: #f8fbff;
+      color: #214068;
+      border-radius: 10px;
+      padding: 7px 11px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .hero-launch {
+      padding: 18px;
+      display: grid;
+      align-content: start;
+      gap: 10px;
+      animation-delay: 80ms;
+    }
+
+    .hero-launch h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-family: "Sora", sans-serif;
+    }
+
+    .hero-launch p {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    .launch-select {
+      width: 100%;
+      border: 1px solid #c8d7ee;
+      border-radius: 11px;
+      background: #ffffff;
+      color: var(--ink);
+      padding: 11px 12px;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+
+    .launch-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 1px solid transparent;
+      border-radius: 11px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 14px rgba(16, 58, 108, 0.18);
+    }
+
+    .btn-main {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%);
+      color: #fff;
+      flex: 1 1 170px;
+    }
+
+    .btn-alt {
+      background: #fff;
+      border-color: #c8d7ee;
+      color: #204066;
+      flex: 1 1 170px;
+    }
+
+    .hint {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: #5d6c84;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow-soft);
+      padding: 16px;
+      display: grid;
+      gap: 9px;
+      animation: slide-up 560ms ease-out;
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-family: "Sora", sans-serif;
+      font-size: 1.02rem;
+    }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 999px;
+      border: 1px solid #ffd1a8;
+      background: #fff5ec;
+      color: #a64a00;
+      padding: 4px 8px;
+      white-space: nowrap;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 0.92rem;
+      min-height: 48px;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+      color: #36557c;
+    }
+
+    .chip {
+      border: 1px solid #d5e3f7;
+      border-radius: 9px;
+      background: #f7fbff;
+      padding: 4px 8px;
+      font-weight: 700;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 2px;
+    }
+
+    .status {
+      margin-top: 8px;
+      border: 1px solid #dce7f6;
+      border-radius: 11px;
+      background: #fbfdff;
+      padding: 10px 12px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: #2b486b;
+    }
+
+    .status strong {
+      color: var(--good);
+    }
+
+    footer {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #5f6f86;
+      text-align: center;
+    }
+
+    @media (max-width: 960px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .shell {
+        padding: 16px 12px 24px;
+      }
+    }
+
+    @keyframes slide-up {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <article class="hero-main">
+        <span class="badge"><span class="badge-dot"></span> Portail CACID</span>
+        <h1>Page d accueil unique des comparateurs</h1>
+        <p class="lead">
+          Choisissez rapidement le comparateur dont vous avez besoin et ouvrez-le en un clic.
+          Cette page centralise tous les outils actuels avec un affichage clair et moderne.
+        </p>
+        <div class="hero-stats">
+          <span class="pill">5 comparateurs</span>
+          <span class="pill">Acces direct</span>
+          <span class="pill">Compatible mobile + desktop</span>
+        </div>
+      </article>
+
+      <aside class="hero-launch">
+        <h2>Ouverture rapide</h2>
+        <p>Selectionnez un comparateur puis lancez-le.</p>
+        <select id="comparator-select" class="launch-select" aria-label="Comparateur a ouvrir"></select>
+        <div class="launch-row">
+          <button id="open-main" class="btn-main" type="button">Ouvrir</button>
+          <button id="open-new" class="btn-alt" type="button">Nouvel onglet</button>
+        </div>
+        <p id="selection-hint" class="hint"></p>
+      </aside>
+    </section>
+
+    <section id="cards" class="grid" aria-label="Liste des comparateurs"></section>
+
+    <section class="status">
+      <strong>Note pratique:</strong>
+      certains comparateurs ont aussi un mode serveur (localhost) via leur fichier start.bat.
+      Les boutons de cette page ouvrent les pages HTML directement. Si vous voulez le mode serveur,
+      lancez le start.bat du comparateur concerne puis utilisez son URL locale.
+    </section>
+
+    <footer>CACID - Portail unifie des comparateurs</footer>
+  </main>
+
+  <script>
+    const comparators = [
+      {
+        id: "folder",
+        name: "Comparateur de dossiers",
+        description: "Compare deux dossiers entiers et detecte manquants, modifies et identiques.",
+        type: "Fichiers",
+        localPath: "Folder comparator/index.html",
+        runHint: "start.bat disponible",
+        serverUrl: null
+      },
+      {
+        id: "process",
+        name: "Comparateur de processus OCR",
+        description: "Compare des elements de liste avec du texte lu depuis des captures d ecran.",
+        type: "OCR",
+        localPath: "Process comparator/index.html",
+        runHint: "100% navigateur",
+        serverUrl: null
+      },
+      {
+        id: "program",
+        name: "Comparateur de programmes",
+        description: "Comparaison detaillee des programmes S7 et 4YOU avec diff avance.",
+        type: "Programmes",
+        localPath: "Program comparator/index.html",
+        runHint: "start.bat disponible",
+        serverUrl: "http://localhost:8090"
+      },
+      {
+        id: "script",
+        name: "Comparateur de scripts",
+        description: "Analyse des scripts shl_S7 et shl_4YOU, variantes et differences ligne a ligne.",
+        type: "Scripts",
+        localPath: "Script Comparator/index.html",
+        runHint: "start.bat disponible",
+        serverUrl: "http://localhost:8091"
+      },
+      {
+        id: "traitement",
+        name: "Comparateur de traitements",
+        description: "Comparaison 2 ou 3 versions de traitement avec vue cote a cote synchronisee.",
+        type: "Traitement",
+        localPath: "Traitement Comparator/three_way_comparator.html",
+        runHint: "three-way compare",
+        serverUrl: null
+      }
+    ];
+
+    const cardsHost = document.getElementById("cards");
+    const select = document.getElementById("comparator-select");
+    const hint = document.getElementById("selection-hint");
+    const canUseLocalhost =
+      window.location.protocol === "file:" ||
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    function optionLabel(item) {
+      return item.name + " - " + item.type;
+    }
+
+    function pathToUrl(path) {
+      return encodeURI(path);
+    }
+
+    function buildSelect() {
+      comparators.forEach((item, index) => {
+        const opt = document.createElement("option");
+        opt.value = item.id;
+        opt.textContent = optionLabel(item);
+        if (index === 0) {
+          opt.selected = true;
+        }
+        select.appendChild(opt);
+      });
+      updateHint();
+    }
+
+    function createCard(item) {
+      const card = document.createElement("article");
+      card.className = "card";
+
+      const metaServer = item.serverUrl
+        ? "URL serveur: " + item.serverUrl
+        : "URL serveur: non requise";
+
+      card.innerHTML = `
+        <div class="card-head">
+          <h3>${item.name}</h3>
+          <span class="tag">${item.type}</span>
+        </div>
+        <p>${item.description}</p>
+        <div class="card-meta">
+          <span class="chip">${item.runHint}</span>
+          <span class="chip">${metaServer}</span>
+        </div>
+        <div class="card-actions">
+          <button class="btn-main" type="button" data-action="open" data-id="${item.id}">Ouvrir</button>
+          <button class="btn-alt" type="button" data-action="open-new" data-id="${item.id}">Nouvel onglet</button>
+          ${item.serverUrl && canUseLocalhost ? `<button class="btn-alt" type="button" data-action="server" data-id="${item.id}">Ouvrir localhost</button>` : ""}
+        </div>
+      `;
+
+      cardsHost.appendChild(card);
+    }
+
+    function buildCards() {
+      comparators.forEach(createCard);
+    }
+
+    function getSelectedComparator() {
+      return comparators.find(c => c.id === select.value) || comparators[0];
+    }
+
+    function updateHint() {
+      const chosen = getSelectedComparator();
+      const serverText = chosen.serverUrl && canUseLocalhost ? " | localhost: " + chosen.serverUrl : "";
+      hint.textContent = "Fichier: " + chosen.localPath + serverText;
+    }
+
+    function openComparator(item, newTab) {
+      const url = pathToUrl(item.localPath);
+      if (newTab) {
+        window.open(url, "_blank", "noopener");
+      } else {
+        window.location.href = url;
+      }
+    }
+
+    function openServer(item) {
+      if (!item.serverUrl) {
+        return;
+      }
+      window.open(item.serverUrl, "_blank", "noopener");
+    }
+
+    document.getElementById("open-main").addEventListener("click", () => {
+      openComparator(getSelectedComparator(), false);
+    });
+
+    document.getElementById("open-new").addEventListener("click", () => {
+      openComparator(getSelectedComparator(), true);
+    });
+
+    select.addEventListener("change", updateHint);
+
+    cardsHost.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) {
+        return;
+      }
+
+      const selected = comparators.find(c => c.id === button.dataset.id);
+      if (!selected) {
+        return;
+      }
+
+      if (button.dataset.action === "open") {
+        openComparator(selected, false);
+      }
+
+      if (button.dataset.action === "open-new") {
+        openComparator(selected, true);
+      }
+
+      if (button.dataset.action === "server") {
+        openServer(selected);
+      }
+    });
+
+    buildSelect();
+    buildCards();
+  </script>
+</body>
+</html>
