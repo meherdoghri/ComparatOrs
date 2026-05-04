@@ -10,15 +10,15 @@
   <style>
     :root {
       --ink: #11243d;
-      --muted: #4f657f;
-      --paper: #f6f9fc;
-      --line: #d7e4f1;
+      --muted: #5c6d82;
+      --paper: #ffffff;
+      --line: #dce4ee;
       --brand-cyan: #00a1e0;
-      --brand-cyan-deep: #007fb3;
+      --brand-cyan-deep: #008bbf;
       --brand-green: #7ac143;
-      --brand-green-deep: #64a737;
+      --brand-green-deep: #6eaf3d;
       --surface: #ffffff;
-      --shadow: 0 16px 38px rgba(16, 41, 70, 0.12);
+      --shadow: 0 10px 24px rgba(16, 41, 70, 0.08);
     }
 
     * { box-sizing: border-box; }
@@ -27,17 +27,14 @@
       margin: 0;
       color: var(--ink);
       font-family: "Source Sans 3", "Segoe UI", Tahoma, sans-serif;
-      background:
-        radial-gradient(circle at 90% -5%, rgba(0, 161, 224, 0.12) 0%, transparent 32%),
-        radial-gradient(circle at 15% -15%, rgba(122, 193, 67, 0.15) 0%, transparent 34%),
-        linear-gradient(180deg, #f9fcff 0%, #f3f8fc 100%);
+      background: #f8fbfd;
       min-height: 100vh;
     }
 
     .topbar {
       background: #ffffff;
       border-bottom: 1px solid var(--line);
-      box-shadow: 0 2px 10px rgba(10, 31, 53, 0.07);
+      box-shadow: 0 1px 6px rgba(10, 31, 53, 0.06);
       position: sticky;
       top: 0;
       z-index: 40;
@@ -115,7 +112,7 @@
       border: 1px solid #d7e4f1;
       border-radius: 999px;
       padding: 5px 10px;
-      background: #f8fbff;
+      background: #ffffff;
     }
 
     .shell {
@@ -132,7 +129,7 @@
     }
 
     .hero-panel {
-      background: linear-gradient(140deg, #ffffff 0%, #f8fcff 70%);
+      background: #ffffff;
       border: 1px solid var(--line);
       border-radius: 18px;
       box-shadow: var(--shadow);
@@ -141,25 +138,14 @@
       overflow: hidden;
     }
 
-    .hero-panel::after {
-      content: "";
-      position: absolute;
-      width: 320px;
-      height: 320px;
-      right: -140px;
-      top: -160px;
-      background: radial-gradient(circle, rgba(0, 161, 224, 0.18) 0%, rgba(0, 161, 224, 0) 70%);
-      pointer-events: none;
-    }
-
     .label {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      border: 1px solid #cae2f3;
+      border: 1px solid #d7e4ee;
       border-radius: 999px;
-      background: #f2faff;
-      color: #0a7db4;
+      background: #ffffff;
+      color: #3a5674;
       padding: 5px 11px;
       font-size: 0.75rem;
       font-weight: 700;
@@ -171,7 +157,7 @@
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: var(--brand-green);
+      background: var(--brand-cyan);
     }
 
     h1 {
@@ -199,13 +185,13 @@
     }
 
     .metric {
-      border: 1px solid #d9e8f5;
+      border: 1px solid #dce5ee;
       border-radius: 9px;
       background: #ffffff;
       padding: 7px 10px;
       font-size: 0.82rem;
       font-weight: 700;
-      color: #1d3b5f;
+      color: #334f6f;
     }
 
     .launch-box {
@@ -262,9 +248,13 @@
     }
 
     .btn-main {
-      background: linear-gradient(135deg, var(--brand-cyan) 0%, var(--brand-cyan-deep) 100%);
+      background: var(--brand-cyan);
       color: #fff;
       flex: 1 1 160px;
+    }
+
+    .btn-main:hover {
+      background: var(--brand-cyan-deep);
     }
 
     .btn-alt {
@@ -315,7 +305,7 @@
       border: 1px solid var(--line);
       border-radius: 14px;
       padding: 14px;
-      box-shadow: 0 10px 24px rgba(14, 42, 71, 0.09);
+      box-shadow: 0 8px 16px rgba(14, 42, 71, 0.06);
       display: grid;
       gap: 9px;
       position: relative;
@@ -328,8 +318,8 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--brand-cyan) 0%, var(--brand-green) 100%);
+      height: 3px;
+      background: var(--brand-cyan);
     }
 
     .card-head {
@@ -348,9 +338,9 @@
     }
 
     .tag {
-      border: 1px solid #cae2f3;
-      background: #f0f9ff;
-      color: #0f6f9f;
+      border: 1px solid #d8e2ec;
+      background: #ffffff;
+      color: #4d6681;
       border-radius: 999px;
       padding: 4px 8px;
       font-size: 0.7rem;
@@ -374,13 +364,13 @@
     }
 
     .chip {
-      border: 1px solid #d7e4f1;
+      border: 1px solid #dce5ee;
       border-radius: 8px;
-      background: #f7fbff;
+      background: #ffffff;
       padding: 4px 8px;
       font-size: 0.76rem;
       font-weight: 700;
-      color: #375776;
+      color: #4c6681;
     }
 
     .card-actions {
@@ -391,14 +381,14 @@
 
     .note {
       margin-top: 14px;
-      border: 1px solid #d4e3f0;
+      border: 1px solid #dce5ee;
       border-radius: 12px;
       background: #ffffff;
       padding: 12px 14px;
       color: #315171;
       line-height: 1.45;
       font-size: 0.9rem;
-      box-shadow: 0 8px 18px rgba(13, 42, 72, 0.08);
+      box-shadow: 0 6px 12px rgba(13, 42, 72, 0.05);
     }
 
     .note strong { color: #145986; }
