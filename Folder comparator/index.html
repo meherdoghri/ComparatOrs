@@ -34,7 +34,7 @@
       flex-direction: column;
       background: linear-gradient(180deg, #f4f7fd 0%, #eef3fb 100%);
       color: var(--text);
-      font: 13px/1.4 "IBM Plex Sans", "Trebuchet MS", Verdana, sans-serif;
+      font: 14px/1.4 "IBM Plex Sans", "Trebuchet MS", Verdana, sans-serif;
     }
 
     .app-menu {
@@ -122,6 +122,7 @@
       padding: 7px 11px;
       cursor: pointer;
       font-weight: 600;
+      position: relative;
     }
 
     button:hover { background: #0f62fe; }
@@ -129,6 +130,30 @@
     button:disabled {
       opacity: 0.45;
       cursor: not-allowed;
+    }
+
+    button.loading {
+      color: transparent !important;
+      pointer-events: none;
+    }
+
+    button.loading::after {
+      content: "";
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      top: 50%;
+      left: 50%;
+      margin-top: -7px;
+      margin-left: -7px;
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
 
     .btn-ghost {
@@ -193,6 +218,85 @@
       font-weight: 600;
     }
 
+    .onboarding {
+      width: 100%;
+      border: 1px solid #cde0f8;
+      border-radius: 10px;
+      background: #f4f9ff;
+      padding: 10px 12px;
+      color: #21456f;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .onboarding strong { color: #113357; }
+
+    .drop-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .drop-zone {
+      border: 1px dashed #99b6e0;
+      border-radius: 10px;
+      background: #fbfdff;
+      padding: 10px;
+      color: #4d6480;
+      font-size: 13px;
+      min-height: 72px;
+      display: grid;
+      align-content: center;
+      gap: 4px;
+      transition: border-color .15s ease, background-color .15s ease;
+    }
+
+    .drop-zone strong { color: #1b3f66; }
+
+    .drop-zone.active {
+      border-color: #0f62fe;
+      background: #eef5ff;
+    }
+
+    .progress-wrap {
+      width: 100%;
+      display: grid;
+      gap: 6px;
+    }
+
+    .progress-label {
+      font-size: 12px;
+      color: #4b6280;
+      font-weight: 600;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      border: 1px solid #d4e2f5;
+      background: #f3f7fd;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, #1f6feb 0%, #0f62fe 100%);
+      transition: width .12s linear;
+    }
+
+    .actions-pro {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
     main {
       display: flex;
       flex: 1;
@@ -219,6 +323,45 @@
       color: #4c5a74;
       font-weight: 600;
       background: var(--panel2);
+    }
+
+    .history-panel {
+      border-bottom: 1px solid var(--border);
+      padding: 10px 12px;
+      background: #fbfdff;
+      color: #3f5877;
+      font-size: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .history-panel h3 {
+      margin: 0;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #25466a;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 6px;
+      max-height: 132px;
+      overflow: auto;
+    }
+
+    .history-item {
+      border: 1px solid #d8e4f5;
+      border-radius: 8px;
+      padding: 6px 8px;
+      background: #fff;
+    }
+
+    .history-item strong {
+      display: block;
+      color: #204263;
+      margin-bottom: 2px;
+      font-size: 12px;
     }
 
     #file-list {
@@ -456,6 +599,7 @@
       #sidebar { width: 100%; max-height: 38vh; }
       #content { min-height: 45vh; }
       .filter-panel input[type="text"] { width: 100%; max-width: 100%; }
+      .drop-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -470,6 +614,11 @@
 
   <header>
     <h1>Comparateur de Dossiers</h1>
+
+    <div id="onboarding" class="onboarding">
+      <div><strong>Onboarding rapide:</strong> 1) Chargez A/B ou glissez-deposez, 2) Cliquez Comparer, 3) Exportez ou partagez le rapport.</div>
+      <button id="dismissOnboarding" class="btn-ghost" type="button">Masquer</button>
+    </div>
 
     <div style="display:flex;align-items:center;gap:8px;">
       <button id="pickA">Ouvrir dossier A</button>
@@ -490,6 +639,28 @@
     <button id="compareBtn">Comparer</button>
     <button id="resetBtn" class="btn-ghost">Reinitialiser</button>
 
+    <div class="actions-pro">
+      <button id="exportCsvBtn" class="btn-ghost" type="button">Exporter CSV</button>
+      <button id="exportPdfBtn" class="btn-ghost" type="button">Exporter PDF resume</button>
+      <button id="shareReportBtn" class="btn-ghost" type="button">Partager rapport</button>
+    </div>
+
+    <div class="drop-grid">
+      <div id="dropZoneA" class="drop-zone" data-target="A">
+        <strong>Deposer dossier/fichiers A</strong>
+        <span>Glissez un dossier ou plusieurs fichiers pour alimenter la colonne A.</span>
+      </div>
+      <div id="dropZoneB" class="drop-zone" data-target="B">
+        <strong>Deposer dossier/fichiers B</strong>
+        <span>Glissez un dossier ou plusieurs fichiers pour alimenter la colonne B.</span>
+      </div>
+    </div>
+
+    <div class="progress-wrap" aria-live="polite">
+      <div id="progressLabel" class="progress-label">Progression: 0%</div>
+      <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+    </div>
+
     <div class="filter-panel">
       <input id="search" type="text" placeholder="Rechercher un chemin de fichier..." />
       <select id="viewMode">
@@ -506,6 +677,12 @@
   <main>
     <aside id="sidebar">
       <div id="sidebar-meta">Aucun resultat pour le moment</div>
+      <div class="history-panel">
+        <h3>Comparaisons recentes</h3>
+        <div id="historyList" class="history-list">
+          <div style="color:#60708a;">Aucun historique pour le moment.</div>
+        </div>
+      </div>
       <div id="file-list"></div>
     </aside>
 
@@ -575,7 +752,10 @@
       search: "",
       viewMode: "all",
       diffBlocks: [],
-      currentDiffIdx: -1
+      currentDiffIdx: -1,
+      isLoading: false,
+      startedAt: 0,
+      recentHistory: []
     };
 
     const els = {
@@ -594,6 +774,16 @@
       search: document.getElementById("search"),
       viewMode: document.getElementById("viewMode"),
       status: document.getElementById("status"),
+      onboarding: document.getElementById("onboarding"),
+      dismissOnboarding: document.getElementById("dismissOnboarding"),
+      progressFill: document.getElementById("progressFill"),
+      progressLabel: document.getElementById("progressLabel"),
+      dropZoneA: document.getElementById("dropZoneA"),
+      dropZoneB: document.getElementById("dropZoneB"),
+      exportCsvBtn: document.getElementById("exportCsvBtn"),
+      exportPdfBtn: document.getElementById("exportPdfBtn"),
+      shareReportBtn: document.getElementById("shareReportBtn"),
+      historyList: document.getElementById("historyList"),
       sidebarMeta: document.getElementById("sidebar-meta"),
       fileList: document.getElementById("file-list"),
       countOnlyA: document.getElementById("countOnlyA"),
@@ -619,6 +809,188 @@
 
     function setStatus(msg) {
       els.status.textContent = msg;
+    }
+
+    const HISTORY_KEY = "comparators-folder-history-v1";
+    const ONBOARDING_KEY = "comparators-folder-onboarding-hidden";
+
+    function setProgress(percent, label) {
+      const safe = Math.max(0, Math.min(100, Math.round(percent)));
+      els.progressFill.style.width = `${safe}%`;
+      els.progressLabel.textContent = label || `Progression: ${safe}%`;
+    }
+
+    function setLoading(isLoading) {
+      state.isLoading = isLoading;
+      els.compareBtn.disabled = isLoading;
+      els.pickA.disabled = isLoading;
+      els.pickB.disabled = isLoading;
+      els.fallbackA.disabled = isLoading;
+      els.fallbackB.disabled = isLoading;
+      els.resetBtn.disabled = isLoading;
+      els.compareBtn.classList.toggle("loading", isLoading);
+      if (!isLoading) {
+        els.compareBtn.classList.remove("loading");
+      }
+    }
+
+    function loadHistory() {
+      try {
+        const raw = localStorage.getItem(HISTORY_KEY);
+        state.recentHistory = raw ? JSON.parse(raw) : [];
+      } catch (_) {
+        state.recentHistory = [];
+      }
+      if (!Array.isArray(state.recentHistory)) {
+        state.recentHistory = [];
+      }
+    }
+
+    function saveHistory() {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(state.recentHistory.slice(0, 10)));
+    }
+
+    function renderHistory() {
+      if (!state.recentHistory.length) {
+        els.historyList.innerHTML = '<div style="color:#60708a;">Aucun historique pour le moment.</div>';
+        return;
+      }
+      els.historyList.innerHTML = state.recentHistory
+        .map((item) => {
+          const when = new Date(item.at).toLocaleString();
+          return `
+            <div class="history-item">
+              <strong>${escapeHtml(item.label)}</strong>
+              <div>${escapeHtml(when)} | changes: ${item.changed} | same: ${item.same}</div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function appendHistoryEntry() {
+      if (!state.results) return;
+      const entry = {
+        at: Date.now(),
+        label: `${state.folderAName || "A"} vs ${state.folderBName || "B"}`,
+        changed: state.results.changed.length,
+        same: state.results.same.length,
+        onlyA: state.results.onlyA.length,
+        onlyB: state.results.onlyB.length,
+        durationMs: Date.now() - state.startedAt
+      };
+      state.recentHistory.unshift(entry);
+      state.recentHistory = state.recentHistory.slice(0, 10);
+      saveHistory();
+      renderHistory();
+    }
+
+    function hideOnboardingIfNeeded() {
+      if (localStorage.getItem(ONBOARDING_KEY) === "1") {
+        els.onboarding.style.display = "none";
+      }
+    }
+
+    function exportCsvReport() {
+      if (!state.results) {
+        setStatus("Aucun resultat a exporter.");
+        return;
+      }
+
+      const rows = [];
+      for (const p of state.results.changed) rows.push(["changed", p]);
+      for (const p of state.results.same) rows.push(["same", p]);
+      for (const p of state.results.onlyA) rows.push(["onlyA", p]);
+      for (const p of state.results.onlyB) rows.push(["onlyB", p]);
+
+      const csv = [
+        ["status", "path"],
+        ...rows
+      ]
+        .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `folder-comparison-${Date.now()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setStatus("Export CSV termine.");
+    }
+
+    function exportPdfSummary() {
+      if (!state.results) {
+        setStatus("Aucun resultat a exporter.");
+        return;
+      }
+      const html = `
+        <html><head><title>Resume comparaison</title>
+        <style>body{font-family:Arial,sans-serif;padding:24px;color:#1f2937}h1{font-size:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #d1d5db;padding:8px;text-align:left}th{background:#f3f4f6}</style>
+        </head><body>
+        <h1>Resume comparaison dossiers</h1>
+        <p><strong>A:</strong> ${escapeHtml(state.folderAName || "Dossier A")}<br/><strong>B:</strong> ${escapeHtml(state.folderBName || "Dossier B")}</p>
+        <table><tr><th>Type</th><th>Nombre</th></tr>
+          <tr><td>Modifies</td><td>${state.results.changed.length}</td></tr>
+          <tr><td>Identiques</td><td>${state.results.same.length}</td></tr>
+          <tr><td>Seulement A</td><td>${state.results.onlyA.length}</td></tr>
+          <tr><td>Seulement B</td><td>${state.results.onlyB.length}</td></tr>
+        </table>
+        <p style="margin-top:16px">Utilisez l'impression du navigateur pour enregistrer en PDF.</p>
+        </body></html>
+      `;
+      const win = window.open("", "_blank");
+      if (!win) {
+        setStatus("Impossible d'ouvrir la fenetre PDF (popup bloquee).");
+        return;
+      }
+      win.document.write(html);
+      win.document.close();
+      win.focus();
+      setTimeout(() => win.print(), 300);
+    }
+
+    async function shareReportLink() {
+      if (!state.results) {
+        setStatus("Aucun rapport a partager.");
+        return;
+      }
+      const payload = {
+        a: state.folderAName,
+        b: state.folderBName,
+        changed: state.results.changed.slice(0, 50),
+        onlyA: state.results.onlyA.slice(0, 50),
+        onlyB: state.results.onlyB.slice(0, 50),
+        sameCount: state.results.same.length,
+        at: Date.now()
+      };
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+      const url = `${location.origin}${location.pathname}#report=${encoded}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        setStatus("Lien de rapport copie dans le presse-papiers.");
+      } catch (_) {
+        prompt("Copiez ce lien:", url);
+      }
+    }
+
+    function loadSharedReportFromHash() {
+      const hash = window.location.hash || "";
+      if (!hash.startsWith("#report=")) return;
+      try {
+        const encoded = hash.substring("#report=".length);
+        const json = decodeURIComponent(escape(atob(encoded)));
+        const payload = JSON.parse(json);
+        if (!payload || typeof payload !== "object") return;
+        const label = `${payload.a || "A"} vs ${payload.b || "B"}`;
+        const changedCount = Array.isArray(payload.changed) ? payload.changed.length : 0;
+        const onlyACount = Array.isArray(payload.onlyA) ? payload.onlyA.length : 0;
+        const onlyBCount = Array.isArray(payload.onlyB) ? payload.onlyB.length : 0;
+        setStatus(`Rapport partage charge: ${label} | changed: ${changedCount} | onlyA: ${onlyACount} | onlyB: ${onlyBCount}`);
+      } catch (_) {
+        setStatus("Lien de rapport invalide.");
+      }
     }
 
     function escapeHtml(value) {
@@ -656,6 +1028,64 @@
         map.set(rel, await fileToEntry(file));
       }
       return { map, folderName };
+    }
+
+    function readFileEntry(fileEntry) {
+      return new Promise((resolve, reject) => {
+        fileEntry.file(resolve, reject);
+      });
+    }
+
+    async function listFilesFromEntry(entry, prefix = "") {
+      if (entry.isFile) {
+        const file = await readFileEntry(entry);
+        return [{ file, rel: cleanRelativePath(prefix ? `${prefix}/${entry.name}` : entry.name) }];
+      }
+      if (!entry.isDirectory) return [];
+
+      const reader = entry.createReader();
+      const children = [];
+      while (true) {
+        const batch = await new Promise((resolve) => reader.readEntries(resolve));
+        if (!batch.length) break;
+        children.push(...batch);
+      }
+
+      const out = [];
+      for (const child of children) {
+        const nested = await listFilesFromEntry(child, prefix ? `${prefix}/${entry.name}` : entry.name);
+        out.push(...nested);
+      }
+      return out;
+    }
+
+    async function mapFromDataTransfer(dataTransfer) {
+      const map = new Map();
+      const items = Array.from(dataTransfer.items || []);
+      let files = [];
+
+      if (items.length && items.some((it) => typeof it.webkitGetAsEntry === "function")) {
+        for (const item of items) {
+          const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+          if (!entry) continue;
+          const listed = await listFilesFromEntry(entry, "");
+          files.push(...listed.map((x) => x.file));
+          for (const itemFile of listed) {
+            map.set(itemFile.rel, await fileToEntry(itemFile.file));
+          }
+        }
+      }
+
+      if (!map.size) {
+        const fallback = await mapFromInputFiles(dataTransfer.files);
+        return fallback;
+      }
+
+      let folderName = "";
+      if (files[0]) {
+        folderName = (files[0].webkitRelativePath || files[0].name || "depose").split("/")[0];
+      }
+      return { map, folderName: folderName || "depose" };
     }
 
     async function mapFromDirectoryHandle(rootHandle) {
@@ -804,40 +1234,52 @@
         return;
       }
 
-      setStatus("Comparaison des fichiers...");
-      const keysA = Array.from(state.mapA.keys()).sort();
-      const keysB = Array.from(state.mapB.keys()).sort();
-      const setA = new Set(keysA);
-      const setB = new Set(keysB);
+      setLoading(true);
+      state.startedAt = Date.now();
+      setProgress(0, "Progression: preparation...");
+      try {
+        setStatus("Comparaison des fichiers...");
+        const keysA = Array.from(state.mapA.keys()).sort();
+        const keysB = Array.from(state.mapB.keys()).sort();
+        const setA = new Set(keysA);
+        const setB = new Set(keysB);
 
-      const onlyA = keysA.filter((k) => !setB.has(k));
-      const onlyB = keysB.filter((k) => !setA.has(k));
-      const common = keysA.filter((k) => setB.has(k));
+        const onlyA = keysA.filter((k) => !setB.has(k));
+        const onlyB = keysB.filter((k) => !setA.has(k));
+        const common = keysA.filter((k) => setB.has(k));
 
-      const changed = [];
-      const same = [];
+        const changed = [];
+        const same = [];
 
-      for (const rel of common) {
-        const a = state.mapA.get(rel);
-        const b = state.mapB.get(rel);
-        if (!a || !b) continue;
+        for (let i = 0; i < common.length; i++) {
+          const rel = common[i];
+          const a = state.mapA.get(rel);
+          const b = state.mapB.get(rel);
+          if (!a || !b) continue;
 
-        if (a.size !== b.size) {
-          changed.push(rel);
-          continue;
+          if (a.size !== b.size) {
+            changed.push(rel);
+          } else {
+            const [abuf, bbuf] = await Promise.all([a.getBytes(), b.getBytes()]);
+            if (bytesEqual(abuf, bbuf)) same.push(rel);
+            else changed.push(rel);
+          }
+
+          const p = common.length ? ((i + 1) / common.length) * 100 : 100;
+          setProgress(p, `Progression: ${Math.round(p)}% (${i + 1}/${common.length})`);
         }
 
-        const [abuf, bbuf] = await Promise.all([a.getBytes(), b.getBytes()]);
-        if (bytesEqual(abuf, bbuf)) same.push(rel);
-        else changed.push(rel);
+        state.results = { onlyA, onlyB, changed, same };
+        state.activeChangedPath = "";
+        renderSummary();
+        renderSidebar();
+        clearDiff();
+        appendHistoryEntry();
+        setStatus(`Termine. ${common.length} fichiers communs analyses.`);
+      } finally {
+        setLoading(false);
+        setProgress(100, "Progression: 100%");
       }
-
-      state.results = { onlyA, onlyB, changed, same };
-      state.activeChangedPath = "";
-      renderSummary();
-      renderSidebar();
-      clearDiff();
-      setStatus(`Termine. ${common.length} fichiers communs analyses.`);
     }
 
     function renderSummary() {
@@ -1115,18 +1557,23 @@
     }
 
     async function loadFromFallback(which, fileList) {
-      setStatus(`Chargement de ${which} via choix alternatif...`);
-      const { map, folderName } = await mapFromInputFiles(fileList);
-      if (which === "A") {
-        state.mapA = map;
-        state.folderAName = folderName || "Dossier A";
-        renderFolderMeta("A");
-      } else {
-        state.mapB = map;
-        state.folderBName = folderName || "Dossier B";
-        renderFolderMeta("B");
+      setLoading(true);
+      try {
+        setStatus(`Chargement de ${which} via choix alternatif...`);
+        const { map, folderName } = await mapFromInputFiles(fileList);
+        if (which === "A") {
+          state.mapA = map;
+          state.folderAName = folderName || "Dossier A";
+          renderFolderMeta("A");
+        } else {
+          state.mapB = map;
+          state.folderBName = folderName || "Dossier B";
+          renderFolderMeta("B");
+        }
+        setStatus(`${which} charge (${map.size} fichiers)`);
+      } finally {
+        setLoading(false);
       }
-      setStatus(`${which} charge (${map.size} fichiers)`);
     }
 
     async function selectFolder(which) {
@@ -1135,6 +1582,7 @@
         return;
       }
       try {
+        setLoading(true);
         const handle = await window.showDirectoryPicker();
         setStatus(`Chargement de ${which}...`);
         const { map, folderName } = await mapFromDirectoryHandle(handle);
@@ -1152,7 +1600,43 @@
         if (err && err.name === "AbortError") return;
         console.error(err);
         setStatus(`Impossible de charger le dossier ${which}`);
+      } finally {
+        setLoading(false);
       }
+    }
+
+    function bindDropZone(zone, which) {
+      const setActive = (on) => zone.classList.toggle("active", on);
+      zone.addEventListener("dragenter", (e) => { e.preventDefault(); setActive(true); });
+      zone.addEventListener("dragover", (e) => { e.preventDefault(); setActive(true); });
+      zone.addEventListener("dragleave", (e) => {
+        if (!zone.contains(e.relatedTarget)) setActive(false);
+      });
+      zone.addEventListener("drop", async (e) => {
+        e.preventDefault();
+        setActive(false);
+        if (!e.dataTransfer) return;
+        setLoading(true);
+        try {
+          setStatus(`Import ${which} via glisser-deposer...`);
+          const { map, folderName } = await mapFromDataTransfer(e.dataTransfer);
+          if (which === "A") {
+            state.mapA = map;
+            state.folderAName = folderName || "Dossier A";
+            renderFolderMeta("A");
+          } else {
+            state.mapB = map;
+            state.folderBName = folderName || "Dossier B";
+            renderFolderMeta("B");
+          }
+          setStatus(`${which} charge (${map.size} fichiers) via glisser-deposer`);
+        } catch (err) {
+          console.error(err);
+          setStatus(`Echec du depot ${which}`);
+        } finally {
+          setLoading(false);
+        }
+      });
     }
 
     function bindEvents() {
@@ -1169,6 +1653,16 @@
       els.resetBtn.addEventListener("click", resetAll);
       els.clearA.addEventListener("click", () => clearSide("A"));
       els.clearB.addEventListener("click", () => clearSide("B"));
+      els.dismissOnboarding.addEventListener("click", () => {
+        els.onboarding.style.display = "none";
+        localStorage.setItem(ONBOARDING_KEY, "1");
+      });
+      els.exportCsvBtn.addEventListener("click", exportCsvReport);
+      els.exportPdfBtn.addEventListener("click", exportPdfSummary);
+      els.shareReportBtn.addEventListener("click", shareReportLink);
+
+      bindDropZone(els.dropZoneA, "A");
+      bindDropZone(els.dropZoneB, "B");
 
       els.fileFirst.addEventListener("click", () => jumpChanged(0));
       els.filePrev.addEventListener("click", () => stepChanged(-1));
@@ -1196,6 +1690,11 @@
     }
 
     renderSummary();
+    loadHistory();
+    renderHistory();
+    hideOnboardingIfNeeded();
+    loadSharedReportFromHash();
+    setProgress(0, "Progression: 0%");
     clearDiff("Chargez les dossiers A et B, cliquez sur Comparer, puis selectionnez un fichier modifie dans le panneau gauche.");
     bindEvents();
     updateFileNav();
