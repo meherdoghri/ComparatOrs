@@ -6,22 +6,19 @@
   <title>ComparatOrs - Portail des applications</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --ink: #17253a;
-      --muted: #516079;
-      --paper: #f6f8fb;
-      --card: #ffffff;
-      --line: #d5deea;
-      --brand: #0b6bcb;
-      --brand-deep: #084a8c;
-      --accent: #f97316;
-      --good: #166534;
-      --glow-a: #dbeafe;
-      --glow-b: #ffedd5;
-      --shadow-soft: 0 12px 30px rgba(18, 52, 92, 0.12);
-      --shadow-strong: 0 18px 38px rgba(9, 43, 83, 0.22);
+      --ink: #11243d;
+      --muted: #4f657f;
+      --paper: #f6f9fc;
+      --line: #d7e4f1;
+      --brand-cyan: #00a1e0;
+      --brand-cyan-deep: #007fb3;
+      --brand-green: #7ac143;
+      --brand-green-deep: #64a737;
+      --surface: #ffffff;
+      --shadow: 0 16px 38px rgba(16, 41, 70, 0.12);
     }
 
     * { box-sizing: border-box; }
@@ -29,76 +26,34 @@
     body {
       margin: 0;
       color: var(--ink);
-      font-family: "Manrope", "Segoe UI", Tahoma, sans-serif;
+      font-family: "Source Sans 3", "Segoe UI", Tahoma, sans-serif;
       background:
-        radial-gradient(circle at 8% -10%, var(--glow-a) 0%, transparent 36%),
-        radial-gradient(circle at 92% 0%, var(--glow-b) 0%, transparent 32%),
-        linear-gradient(180deg, #f8fbff 0%, #f2f6fb 100%);
+        radial-gradient(circle at 90% -5%, rgba(0, 161, 224, 0.12) 0%, transparent 32%),
+        radial-gradient(circle at 15% -15%, rgba(122, 193, 67, 0.15) 0%, transparent 34%),
+        linear-gradient(180deg, #f9fcff 0%, #f3f8fc 100%);
       min-height: 100vh;
     }
 
-    .shell {
-      max-width: 1200px;
+    .topbar {
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 2px 10px rgba(10, 31, 53, 0.07);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .topbar-inner {
+      max-width: 1220px;
       margin: 0 auto;
-      padding: 30px 20px 40px;
-    }
-
-    .hero {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 18px;
-      align-items: stretch;
-      margin-bottom: 18px;
-    }
-
-    .hero-main,
-    .hero-launch {
-      background: linear-gradient(165deg, #ffffff 0%, #f8fbff 85%);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      box-shadow: var(--shadow-soft);
-      position: relative;
-      overflow: hidden;
-      animation: slide-up 480ms ease-out;
-    }
-
-    .hero-main::after {
-      content: "";
-      position: absolute;
-      right: -80px;
-      top: -90px;
-      width: 260px;
-      height: 260px;
-      background: radial-gradient(circle, rgba(11, 107, 203, 0.16) 0%, rgba(11, 107, 203, 0) 70%);
-      pointer-events: none;
-    }
-
-    .hero-main {
-      padding: 22px 22px 20px;
-    }
-
-    .badge {
-      display: inline-flex;
+      padding: 12px 18px;
+      display: flex;
       align-items: center;
-      gap: 8px;
-      border: 1px solid #b7cdee;
-      border-radius: 999px;
-      padding: 5px 10px;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--brand-deep);
-      background: #edf4ff;
-      letter-spacing: 0.02em;
+      justify-content: space-between;
+      gap: 14px;
     }
 
-    .badge-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #14b8a6;
-    }
-
-    .brand-line {
+    .brand-wrap {
       display: flex;
       align-items: center;
       gap: 10px;
@@ -108,9 +63,8 @@
       width: 30px;
       height: 30px;
       border-radius: 8px;
-      background:
-        linear-gradient(135deg, #00a1e0 0%, #00a1e0 50%, #7ac143 50%, #7ac143 100%);
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+      background: linear-gradient(135deg, var(--brand-cyan) 0%, var(--brand-cyan) 52%, var(--brand-green) 52%, var(--brand-green) 100%);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
       position: relative;
       flex: 0 0 auto;
     }
@@ -118,76 +72,170 @@
     .logo-mark::after {
       content: "";
       position: absolute;
-      width: 12px;
-      height: 12px;
+      width: 11px;
+      height: 11px;
       border-radius: 3px;
-      background: #ffffff;
       top: 9px;
       left: 9px;
-      opacity: 0.9;
+      background: #fff;
+      opacity: 0.95;
+    }
+
+    .brand-title {
+      font-family: "Montserrat", sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: #0f2844;
+      text-transform: uppercase;
+    }
+
+    .brand-sub {
+      font-size: 0.74rem;
+      color: #6a7f97;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .top-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .top-nav span {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #3e5875;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: 1px solid #d7e4f1;
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: #f8fbff;
+    }
+
+    .shell {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 22px 18px 34px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .hero-panel {
+      background: linear-gradient(140deg, #ffffff 0%, #f8fcff 70%);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-panel::after {
+      content: "";
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      right: -140px;
+      top: -160px;
+      background: radial-gradient(circle, rgba(0, 161, 224, 0.18) 0%, rgba(0, 161, 224, 0) 70%);
+      pointer-events: none;
+    }
+
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #cae2f3;
+      border-radius: 999px;
+      background: #f2faff;
+      color: #0a7db4;
+      padding: 5px 11px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .label-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--brand-green);
     }
 
     h1 {
-      margin: 12px 0 8px;
-      font-family: "Sora", "Trebuchet MS", sans-serif;
-      font-size: clamp(1.5rem, 3.2vw, 2.25rem);
-      line-height: 1.2;
-      letter-spacing: 0.01em;
+      margin: 13px 0 10px;
+      font-family: "Montserrat", sans-serif;
+      font-size: clamp(1.7rem, 3.4vw, 2.6rem);
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      max-width: 20ch;
     }
 
     .lead {
       margin: 0;
       color: var(--muted);
+      font-size: 1.02rem;
       line-height: 1.55;
-      max-width: 70ch;
+      max-width: 66ch;
     }
 
-    .hero-stats {
+    .hero-metrics {
       margin-top: 14px;
       display: flex;
+      gap: 9px;
       flex-wrap: wrap;
-      gap: 10px;
     }
 
-    .pill {
-      border: 1px solid #d8e5f8;
-      background: #f8fbff;
-      color: #214068;
-      border-radius: 10px;
-      padding: 7px 11px;
-      font-size: 12px;
+    .metric {
+      border: 1px solid #d9e8f5;
+      border-radius: 9px;
+      background: #ffffff;
+      padding: 7px 10px;
+      font-size: 0.82rem;
       font-weight: 700;
+      color: #1d3b5f;
     }
 
-    .hero-launch {
-      padding: 18px;
+    .launch-box {
       display: grid;
-      align-content: start;
       gap: 10px;
-      animation-delay: 80ms;
     }
 
-    .hero-launch h2 {
+    .launch-box h2 {
       margin: 0;
-      font-size: 1rem;
-      font-family: "Sora", sans-serif;
+      font-family: "Montserrat", sans-serif;
+      font-size: 1.05rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: #0f2f51;
     }
 
-    .hero-launch p {
+    .launch-box p {
       margin: 0;
-      font-size: 0.92rem;
-      line-height: 1.45;
       color: var(--muted);
+      line-height: 1.45;
     }
 
     .launch-select {
       width: 100%;
-      border: 1px solid #c8d7ee;
-      border-radius: 11px;
-      background: #ffffff;
-      color: var(--ink);
+      border: 1px solid #c6dbee;
+      border-radius: 12px;
       padding: 11px 12px;
       font-size: 0.95rem;
+      background: #fff;
+      color: #163352;
       font-family: inherit;
     }
 
@@ -201,181 +249,221 @@
       border: 1px solid transparent;
       border-radius: 11px;
       padding: 10px 12px;
-      font-family: inherit;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 700;
+      font-family: inherit;
       cursor: pointer;
-      transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+      transition: transform 120ms ease, box-shadow 120ms ease;
     }
 
     button:hover {
       transform: translateY(-1px);
-      box-shadow: 0 8px 14px rgba(16, 58, 108, 0.18);
+      box-shadow: 0 8px 14px rgba(11, 44, 75, 0.16);
     }
 
     .btn-main {
-      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%);
+      background: linear-gradient(135deg, var(--brand-cyan) 0%, var(--brand-cyan-deep) 100%);
       color: #fff;
-      flex: 1 1 170px;
+      flex: 1 1 160px;
     }
 
     .btn-alt {
+      border-color: #cae0f2;
       background: #fff;
-      border-color: #c8d7ee;
-      color: #204066;
-      flex: 1 1 170px;
+      color: #244464;
+      flex: 1 1 160px;
     }
 
     .hint {
-      margin: 2px 0 0;
-      font-size: 12px;
-      color: #5d6c84;
+      margin: 0;
+      font-size: 0.8rem;
+      color: #5b7390;
+    }
+
+    .section-head {
+      margin: 16px 0 10px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .section-head h3 {
+      margin: 0;
+      font-family: "Montserrat", sans-serif;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #113154;
+    }
+
+    .section-head span {
+      font-size: 0.86rem;
+      color: #5f7692;
+      font-weight: 600;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
     }
 
     .card {
-      background: var(--card);
+      background: var(--surface);
       border: 1px solid var(--line);
-      border-radius: 16px;
-      box-shadow: var(--shadow-soft);
-      padding: 16px;
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 10px 24px rgba(14, 42, 71, 0.09);
       display: grid;
       gap: 9px;
-      animation: slide-up 560ms ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--brand-cyan) 0%, var(--brand-green) 100%);
     }
 
     .card-head {
       display: flex;
       justify-content: space-between;
-      gap: 10px;
       align-items: flex-start;
+      gap: 8px;
     }
 
-    .card h3 {
+    .card h4 {
       margin: 0;
-      font-family: "Sora", sans-serif;
-      font-size: 1.02rem;
+      font-size: 1.03rem;
+      font-family: "Montserrat", sans-serif;
+      color: #102c4c;
+      line-height: 1.25;
     }
 
     .tag {
-      font-size: 11px;
-      font-weight: 700;
+      border: 1px solid #cae2f3;
+      background: #f0f9ff;
+      color: #0f6f9f;
       border-radius: 999px;
-      border: 1px solid #ffd1a8;
-      background: #fff5ec;
-      color: #a64a00;
       padding: 4px 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
       white-space: nowrap;
     }
 
     .card p {
       margin: 0;
       color: var(--muted);
-      line-height: 1.5;
-      font-size: 0.92rem;
-      min-height: 48px;
+      line-height: 1.45;
+      min-height: 58px;
     }
 
     .card-meta {
       display: flex;
+      gap: 7px;
       flex-wrap: wrap;
-      gap: 8px;
-      font-size: 12px;
-      color: #36557c;
     }
 
     .chip {
-      border: 1px solid #d5e3f7;
-      border-radius: 9px;
+      border: 1px solid #d7e4f1;
+      border-radius: 8px;
       background: #f7fbff;
       padding: 4px 8px;
+      font-size: 0.76rem;
       font-weight: 700;
+      color: #375776;
     }
 
     .card-actions {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
-      margin-top: 2px;
     }
 
-    .status {
-      margin-top: 8px;
-      border: 1px solid #dce7f6;
-      border-radius: 11px;
-      background: #fbfdff;
-      padding: 10px 12px;
-      font-size: 12px;
+    .note {
+      margin-top: 14px;
+      border: 1px solid #d4e3f0;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 12px 14px;
+      color: #315171;
       line-height: 1.45;
-      color: #2b486b;
+      font-size: 0.9rem;
+      box-shadow: 0 8px 18px rgba(13, 42, 72, 0.08);
     }
 
-    .status strong {
-      color: var(--good);
-    }
+    .note strong { color: #145986; }
 
     footer {
       margin-top: 16px;
-      font-size: 12px;
-      color: #5f6f86;
       text-align: center;
+      color: #5f7793;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
     }
 
-    @media (max-width: 960px) {
-      .hero {
-        grid-template-columns: 1fr;
-      }
-
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .shell {
-        padding: 16px 12px 24px;
-      }
+    @media (max-width: 1024px) {
+      .hero { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
-    @keyframes slide-up {
-      from {
-        opacity: 0;
-        transform: translateY(12px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    @media (max-width: 740px) {
+      .topbar-inner { padding: 10px 12px; }
+      .top-nav { display: none; }
+      .shell { padding: 14px 12px 22px; }
+      .grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand-wrap">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <div>
+          <div class="brand-title">Sopra HR Software</div>
+          <div class="brand-sub">Comparators Workspace</div>
+        </div>
+      </div>
+      <nav class="top-nav" aria-label="Sections">
+        <span>Services</span>
+        <span>Solutions</span>
+        <span>Resources</span>
+      </nav>
+    </div>
+  </header>
+
   <main class="shell">
     <section class="hero">
-      <article class="hero-main">
-        <span class="badge"><span class="badge-dot"></span> Portail centralise</span>
-        <div class="brand-line">
-          <span class="logo-mark" aria-hidden="true"></span>
-          <strong>Sopra HR Software - Comparators</strong>
-        </div>
-        <h1>Page d accueil unique des comparateurs</h1>
+      <article class="hero-panel">
+        <span class="label"><span class="label-dot"></span> Portail comparateurs</span>
+        <h1>Accélérez les analyses de versions sur une interface unifiée</h1>
         <p class="lead">
-          Choisissez rapidement le comparateur dont vous avez besoin et ouvrez-le en un clic.
-          Cette page centralise tous les outils actuels avec un affichage clair et moderne.
+          Choisissez un comparateur métier, ouvrez-le instantanément et gardez un parcours fluide entre
+          programmes, scripts, traitements et dossiers. Le portail est optimisé pour une utilisation
+          opérationnelle quotidienne.
         </p>
-        <div class="hero-stats">
-          <span class="pill">5 comparateurs</span>
-          <span class="pill">Acces direct</span>
-          <span class="pill">Compatible mobile + desktop</span>
+        <div class="hero-metrics">
+          <span class="metric">5 applications intégrées</span>
+          <span class="metric">Accès direct en 1 clic</span>
+          <span class="metric">Desktop + mobile</span>
         </div>
       </article>
 
-      <aside class="hero-launch">
+      <aside class="hero-panel launch-box">
         <h2>Ouverture rapide</h2>
-        <p>Selectionnez un comparateur puis lancez-le.</p>
+        <p>Sélectionnez une application et lancez-la.</p>
         <select id="comparator-select" class="launch-select" aria-label="Comparateur a ouvrir"></select>
         <div class="launch-row">
           <button id="open-main" class="btn-main" type="button">Ouvrir</button>
@@ -385,16 +473,20 @@
       </aside>
     </section>
 
+    <div class="section-head">
+      <h3>Nos applications</h3>
+      <span>Comparaison structurée de vos actifs S7 / 4YOU</span>
+    </div>
     <section id="cards" class="grid" aria-label="Liste des comparateurs"></section>
 
-    <section class="status">
+    <section class="note">
       <strong>Note pratique:</strong>
-      certains comparateurs ont aussi un mode serveur (localhost) via leur fichier start.bat.
-      Les boutons de cette page ouvrent les pages HTML directement. Si vous voulez le mode serveur,
-      lancez le start.bat du comparateur concerne puis utilisez son URL locale.
+      certains comparateurs incluent un mode serveur local via start.bat.
+      Les boutons du portail ouvrent les pages HTML directement. Pour le mode serveur, lancez le start.bat
+      de l'application concernée puis utilisez son URL locale.
     </section>
 
-    <footer>ComparatOrs - Portail unifie des comparateurs</footer>
+    <footer>Sopra HR Software - Comparators Workspace</footer>
   </main>
 
   <script>
@@ -402,7 +494,7 @@
       {
         id: "folder",
         name: "Comparateur de dossiers",
-        description: "Compare deux dossiers entiers et detecte manquants, modifies et identiques.",
+        description: "Compare deux dossiers entiers et détecte manquants, modifiés et identiques.",
         type: "Fichiers",
         localPath: "Folder comparator/index.html",
         runHint: "start.bat disponible",
@@ -411,7 +503,7 @@
       {
         id: "process",
         name: "Comparateur de processus OCR",
-        description: "Compare des elements de liste avec du texte lu depuis des captures d ecran.",
+        description: "Vérifie des identifiants dans des captures d'écran avec OCR intégré.",
         type: "OCR",
         localPath: "Process comparator/index.html",
         runHint: "100% navigateur",
@@ -420,7 +512,7 @@
       {
         id: "program",
         name: "Comparateur de programmes",
-        description: "Comparaison detaillee des programmes S7 et 4YOU avec diff avance.",
+        description: "Analyse détaillée des programmes S7 et 4YOU avec diff avancé.",
         type: "Programmes",
         localPath: "Program comparator/index.html",
         runHint: "start.bat disponible",
@@ -429,7 +521,7 @@
       {
         id: "script",
         name: "Comparateur de scripts",
-        description: "Analyse des scripts shl_S7 et shl_4YOU, variantes et differences ligne a ligne.",
+        description: "Comparaison complète des scripts shl_S7 et shl_4YOU avec variantes.",
         type: "Scripts",
         localPath: "Script Comparator/index.html",
         runHint: "start.bat disponible",
@@ -438,7 +530,7 @@
       {
         id: "traitement",
         name: "Comparateur de traitements",
-        description: "Comparaison 2 ou 3 versions de traitement avec vue cote a cote synchronisee.",
+        description: "Visualisation 2 ou 3 versions en parallèle avec synchronisation des écarts.",
         type: "Traitement",
         localPath: "Traitement Comparator/three_way_comparator.html",
         runHint: "three-way compare",
@@ -485,7 +577,7 @@
 
       card.innerHTML = `
         <div class="card-head">
-          <h3>${item.name}</h3>
+          <h4>${item.name}</h4>
           <span class="tag">${item.type}</span>
         </div>
         <p>${item.description}</p>
